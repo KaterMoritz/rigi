@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="130dp"
+    android:background="@drawable/round_border_gray"
+    android:layout_marginTop="5dp"
+    android:layout_marginBottom="5dp">
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="100dp"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="6dip"
+        android:layout_marginLeft="20dip"
+        android:contentDescription="TODO"
+        android:src="@drawable/blowing_snow" />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="135dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@id/icon"
+        android:gravity="center_vertical"
+        android:text="Example application"
+        android:textSize="36dp" />
+
+    <TextView
+        android:id="@+id/modul_info"
+        android:layout_width="430dp"
+        android:layout_height="35dp"
+        android:layout_marginLeft="135dp"
+        android:layout_marginBottom="15dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_toRightOf="@id/icon"
+        android:maxLines="1"
+        android:text="Description"
+        android:textSize="22sp" />
+
+    <TextView
+        android:id="@+id/button_info"
+        android:layout_width="240dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="0dip"
+        android:layout_alignParentRight="true"
+        android:gravity="center"
+        android:maxLines="1"
+        android:text="Button Info"
+        android:textSize="22sp" />
+
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="10dip"
+        android:layout_marginRight="20dip"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:theme="@style/AppTheme.Button"
+        android:textSize="22sp"
+        android:clickable="true"
+        android:hapticFeedbackEnabled="true"
+        android:background="@drawable/ripple"
+        android:text="Button"/>
+
+</RelativeLayout>

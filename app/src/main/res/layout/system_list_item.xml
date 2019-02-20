@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="5dip" >
+
+    <!--  ListRow Left type image -->
+    <LinearLayout
+        android:id="@+id/typeImgLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="3dip"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="5dip">
+
+        <ImageView
+            android:id="@+id/typeImg"
+            android:layout_width="33dip"
+            android:layout_height="33dip" />
+
+    </LinearLayout>
+
+    <!-- First line-->
+    <TextView
+        android:id="@+id/eventFirstLine"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/typeImgLayout"
+        android:layout_toRightOf="@+id/typeImgLayout"
+        android:text="First Line"
+        android:textSize="20sp" />
+
+    <!-- Second Line -->
+    <TextView
+        android:id="@+id/eventSecondLine"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/eventFirstLine"
+        android:textSize="20sp"
+        android:layout_marginTop="1dip"
+        android:layout_toRightOf="@+id/typeImgLayout"
+        android:text="Second Line" />
+
+    <!-- Time -->
+    <TextView
+        android:id="@+id/eventTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@id/title"
+        android:gravity="right"
+        android:layout_marginRight="5dip"
+        android:textSize="20sp"
+        android:text="Time"/>
+
+    <!-- Date -->
+    <TextView
+        android:id="@+id/eventDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/eventTime"
+        android:gravity="right"
+        android:text="Date"
+        android:layout_marginRight="5dip"
+        android:textSize="20sp" />
+
+</RelativeLayout>

@@ -1,0 +1,53 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:theme="@android:style/Theme.Translucent"
+    android:background="@color/colorTransparent">
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+
+    <EditTextPreference
+        android:defaultValue="mein Gerät"
+        android:inputType="text"
+        android:key="devicename"
+        android:title="Geräte Name" />
+
+    <ListPreference
+        android:key="loglevel"
+        android:entries="@array/loglevels"
+        android:entryValues="@array/loglevels_values"
+        android:defaultValue="E"
+        android:title="Allgemeiner LOG Level" />
+
+    <MultiSelectListPreference
+        android:key="modulListDebug"
+        android:summary="Liste der Module im Debug Modus"
+        android:title="Debug Module"
+        android:entries="@array/logmodules"
+        android:entryValues="@array/logmodules"
+        android:defaultValue="@array/empty_array"/>
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="sendLogDaily"
+        android:summary="Sende täglich LOG Datei an Entwickler"
+        android:title="Automatisch LOG senden" />
+
+    <ListPreference
+        android:title="Log Datei"
+        android:key="sendLogNow"
+        android:summary="sendet LOG Datei an Entwickler"
+        android:entries="@array/empty_array"
+        android:entryValues="@array/empty_array"
+        android:defaultValue="@array/empty_array"/>/>
+
+    <Preference
+        android:title="Text Exception"
+        android:key="testException"
+        android:summary="generiert Exception auf tracepot.com"/>
+
+    <EditTextPreference
+        android:inputType="text"
+        android:key="systemservice"
+        android:title="System Service" />
+
+</PreferenceScreen>

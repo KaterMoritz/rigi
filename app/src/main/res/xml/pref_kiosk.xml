@@ -1,0 +1,43 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:theme="@android:style/Theme.Translucent">
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+
+    <Preference
+        android:title="set device owner"
+        android:key="cmdDeviceOwner"
+        android:summary="Rigi App Lock Task"/>
+
+    <Preference
+        android:title="clear device owner"
+        android:key="clearDeviceOwner"
+        android:summary="Rigi App Lock Task"/>
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="stop_lock_task_switch"
+        android:summary="Stop Lock Task"
+        android:title="COSU Device" />
+
+    <Preference
+        android:title="Aktive Benutzer"
+        android:key="activeUsers"
+        android:summary=""/>
+
+    <Preference
+        android:title="Start Lock Task"
+        android:key="startLockTask"
+        android:summary=""/>
+
+    <Preference
+        android:title="Stop Lock Task"
+        android:key="stopLockTask"
+        android:summary=""/>
+
+    <Preference
+        android:title="Applikation beenden"
+        android:key="exitApp"
+        android:summary=""/>
+
+</PreferenceScreen>

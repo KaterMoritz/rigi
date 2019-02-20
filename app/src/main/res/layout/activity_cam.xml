@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cam"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fitsSystemWindows="true"
+    android:background="@color/colorDeepBlack"
+    tools:context="biz.kindler.rigi.modul.sonnerie.DoorCamActivity">
+
+    <TextView
+        android:id="@+id/img_timestamp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="130dp"
+        android:gravity="center"
+        android:textColor="@color/gray_btn_bg_color"
+        android:textSize="24dp"
+        android:text=""/>
+
+    <ImageView
+        android:id="@+id/download_image"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_gravity="bottom|start"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="50dp"
+        android:layout_marginBottom="30dp"
+        android:clickable="false"
+        android:visibility="invisible"
+        android:background="@drawable/download" />
+
+    <ImageButton
+        android:id="@+id/record_button"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_gravity="bottom|end"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="50dp"
+        android:layout_marginBottom="30dp"
+        android:clickable="true"
+        android:visibility="invisible"
+        android:background="@drawable/cam_gray" />
+
+    <HorizontalScrollView
+        android:id="@+id/cam_archive"
+        android:layout_width="fill_parent"
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="15dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/thumbImgLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:padding="1dip"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true">
+
+        </LinearLayout>
+
+    </HorizontalScrollView >
+
+
+</RelativeLayout>

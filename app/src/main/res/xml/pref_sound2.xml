@@ -1,0 +1,29 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:theme="@android:style/Theme.Translucent"
+    android:background="@color/colorTransparent">
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+
+    <EditTextPreference
+        android:capitalize="words"
+        android:inputType="text"
+        android:key="shoutcast_api_key"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Shoutcast API key" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="remote_sound_switch"
+        android:title="@string/pref_sound_switch_title"
+        android:background="@color/colorPrimaryDark"/>
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="socket_switch"
+        android:title="@string/pref_socket_switch_title"
+        android:background="@color/colorPrimaryDark"/>
+
+</PreferenceScreen>

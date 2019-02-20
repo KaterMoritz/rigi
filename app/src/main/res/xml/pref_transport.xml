@@ -1,0 +1,34 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:theme="@android:style/Theme.Translucent"
+    android:background="@color/colorTransparent">
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+
+    <EditTextPreference
+        android:inputType="text"
+        android:key="transport_api_key"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Transport API key" />
+
+    <EditTextPreference
+        android:inputType="text"
+        android:key="from_location"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:defaultValue="Buchrain,Dorf"
+        android:title="From location" />
+
+    <EditTextPreference
+        android:inputType="text"
+        android:key="to_location"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:defaultValue="Luzern,Bahnhof"
+        android:title="To location" />
+
+</PreferenceScreen>

@@ -1,0 +1,25 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:theme="@android:style/Theme.Translucent"
+    android:background="@color/colorTransparent">
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="bt_sound_switch"
+        android:title="@string/pref_sound_switch_title"
+        android:background="@color/colorPrimaryDark"/>
+
+    <biz.kindler.rigi.settings.BluetoothListPreference
+        android:key="btdevices"
+        android:title="Bluetooth Geräte" />
+
+    <Preference
+        android:title="Mein Bluetooth Sound Adapter"
+        android:key="mybtsoundadapter" />
+
+    <Preference
+        android:title="Gekoppelte Geräte"
+        android:key="paireddevices" />
+
+</PreferenceScreen>

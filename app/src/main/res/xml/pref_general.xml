@@ -1,0 +1,78 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:theme="@android:style/Theme.Translucent"
+    android:background="@color/colorTransparent">
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="http://192.168.1.131:8080"
+        android:inputType="textUri"
+        android:key="openhab_server"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="openHAB Server" />
+
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="http://192.168.1.112/html/cam_pic.php"
+        android:inputType="textUri"
+        android:key="door_cam"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Tür Kamera" />
+
+    <EditTextPreference
+        android:defaultValue="5"
+        android:inputType="numberDecimal"
+        android:key="display-off-after-minutes"
+        android:title="Bildschirm Timer"
+        android:summary="@string/pref_display_off"/>
+
+    <EditTextPreference
+        android:defaultValue="1000"
+        android:inputType="numberDecimal"
+        android:key="pref_dawn_level"
+        android:title="@string/pref_dawn_level_title"
+        android:summary="@string/pref_dawn_level_summary"/>
+
+    <EditTextPreference
+        android:defaultValue="1000"
+        android:inputType="numberDecimal"
+        android:key="pref_twilight_level"
+        android:title="@string/pref_twilight_level_title"
+        android:summary="@string/pref_twilight_level_summary"/>
+
+    <EditTextPreference
+        android:defaultValue="00:00"
+        android:inputType="time"
+        android:key="screensaver-on"
+        android:title="Screensaver ein"
+        android:summary="@string/pref_screensaver_on"/>
+
+    <EditTextPreference
+        android:defaultValue="05:00"
+        android:inputType="time"
+        android:key="screensaver-off"
+        android:title="Screensaver aus"
+        android:summary="@string/pref_screensaver_off"/>
+
+    <ListPreference
+        android:defaultValue="standard"
+        android:entries="@array/pref_background_values"
+        android:entryValues="@array/pref_background_keys"
+        android:key="pref_background"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/pref_background_title" />
+
+    <EditTextPreference
+        android:defaultValue="cat"
+        android:inputType="text"
+        android:key="loremflickr_keyword"
+        android:title="Suchwort für Loremflickr" />
+
+</PreferenceScreen>

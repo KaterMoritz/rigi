@@ -1,0 +1,51 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:theme="@android:style/Theme.Translucent"
+    android:background="@drawable/background_settings_right">
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="pref_daylight_for_kitchen_sensor_switch"
+        android:summary="@string/pref_sensor_kitchen_switch_daylight_summary_switchoff"
+        android:title="@string/pref_sensor_kitchen_switch_daylight_title"
+        android:background="@color/colorPrimaryDark"/>
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="pref_nightmode_og_switch"
+        android:title="@string/pref_nightmode_og_switch_title"
+        android:background="@color/colorPrimaryDark"/>
+
+    <MultiSelectListPreference
+        android:key="pref_nightmodeaction_list"
+        android:title="Nachtmode Aktionen"
+        android:entries="@array/nightmodeactions"
+        android:entryValues="@array/nightmodeactions_values"
+        android:defaultValue="@array/empty_array"/>
+
+    <EditTextPreference
+        android:defaultValue="22:00"
+        android:inputType="time"
+        android:key="pref_nightmode_on_time"
+        android:title="@string/nightmode_on_time_title" />
+
+    <EditTextPreference
+        android:defaultValue="07:30"
+        android:inputType="time"
+        android:key="pref_nightmode_off_time"
+        android:title="@string/nightmode_off_time_title" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="pref_mittelwandplug_auto_switch"
+        android:title="@string/pref_mittelwandplug_auto_switch_title"
+        android:background="@color/colorPrimaryDark"/>
+
+    <EditTextPreference
+        android:defaultValue="15"
+        android:inputType="numberDecimal"
+        android:key="pref_mittelwandplug_on_duration"
+        android:title="@string/pref_mittelwandplug_on_duration_title"/>
+
+</PreferenceScreen>

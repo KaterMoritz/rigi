@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_garage"
+            android:icon="@drawable/ic_directions_car_white_36dp"
+            android:title="Garage" />
+        <item
+            android:id="@+id/nav_letterbox"
+            android:icon="@drawable/ic_picture_in_picture_white_36dp"
+            android:title="Briefkasten" />
+        <item
+            android:id="@+id/nav_light_avenue"
+            android:icon="@drawable/ic_brightness_3_white_36dp"
+            android:title="Aussenlicht" />
+        <item
+            android:id="@+id/nav_blinds"
+            android:icon="@drawable/ic_beach_access_white_36dp"
+            android:title="Storen" />
+        <item
+            android:id="@+id/nav_entree"
+            android:icon="@drawable/ic_accessibility_white_36dp"
+            android:title="Ankleide" />
+    </group>
+
+    <item android:title="">
+        <menu>
+            <item
+                android:id="@+id/nav_sonnerie"
+                android:icon="@drawable/ic_notifications_white"
+                android:title="Haustür" />
+            <item
+                android:id="@+id/nav_calendar"
+                android:icon="@drawable/ic_date_range_white_36dp"
+                android:title="Kalender" />
+            <item
+                android:id="@+id/nav_vbl"
+                android:icon="@drawable/ic_directions_bus_white_36dp"
+                android:title="VBL Fahrplan" />
+            <item
+                android:id="@+id/nav_weatherstation"
+                android:icon="@drawable/ic_wb_sunny_white_36dp"
+                android:title="Wetterstation" />
+            <item
+                android:id="@+id/nav_watering"
+                android:icon="@drawable/ic_local_florist_white_36dp"
+                android:title="Bewässerung" />
+            <item
+                android:id="@+id/nav_music"
+                android:icon="@drawable/ic_audiotrack_white_36dp"
+                android:title="Musik" />
+            <item
+                android:id="@+id/nav_system"
+                android:icon="@drawable/ic_settings_white_36dp"
+                android:title="System" />
+        </menu>
+    </item>
+
+
+    <item android:title="">
+        <menu>
+            <item
+                android:id="@+id/nav_share"
+                android:title=""
+                android:visibility="invisible"/>
+            <item
+                android:id="@+id/nav_test"
+                android:title=""
+                android:visibility="invisible"/>
+            <item
+                android:id="@+id/nav_settings"
+                android:icon="@drawable/ic_settings_white_36dp"
+                android:title="Einstellungen" />
+        </menu>
+    </item>
+
+</menu>

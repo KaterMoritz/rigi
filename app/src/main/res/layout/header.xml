@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="255dp"
+    android:paddingTop="45dp">
+
+    <RelativeLayout
+        android:layout_width="175dp"
+        android:layout_height="210dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="5dp"
+        android:background="@drawable/round_border_gray">
+
+        <ImageView
+            android:id="@+id/weather_today_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="170dip"
+            android:layout_marginTop="15dp"
+            android:layout_centerHorizontal="true"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds ="true"
+            android:paddingLeft="7dip"
+            android:paddingBottom="17dip" />
+
+        <TextView
+            android:id="@+id/weather_today_temperatur"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:textSize="22sp"
+            android:maxLines="1"
+            android:textColor="@color/colorPrimaryDark"
+            android:text="-°C" />
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="350dp"
+        android:layout_height="210dp"
+        android:layout_marginTop="10dp"
+        android:layout_centerInParent="true"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/round_border_gray">
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            android:textSize="22sp"
+            android:maxLines="1"
+            android:textColor="@color/colorPrimaryDark"
+            android:text="Montag 1 Januar" />
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:textSize="120sp"
+            android:maxLines="1"
+            android:textColor="@color/colorPrimaryDark"
+            android:text="00:00" />
+
+        <TextView
+            android:id="@+id/weather_today_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:textSize="22sp"
+            android:maxLines="1"
+            android:textColor="@color/colorPrimaryDark"
+            android:text="-" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/weather_tomorrow_box"
+        android:layout_width="85dp"
+        android:layout_height="210dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="100dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/round_border_gray">
+
+        <TextView
+            android:id="@+id/weather_tomorrow_day_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            android:textSize="22sp"
+            android:maxLines="1"
+            android:textColor="@color/colorPrimaryDark"
+            android:text="-" />
+
+        <ImageView
+            android:id="@+id/weather_tomorrow_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="80dip"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds ="true"
+            android:paddingLeft="7dip"
+            android:paddingBottom="17dip" />
+
+        <TextView
+            android:id="@+id/weather_tomorrow_temperatur"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:textSize="22sp"
+            android:maxLines="1"
+            android:textColor="@color/colorPrimaryDark"
+            android:text="-°C" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/weather_aftertomorrow_box"
+        android:layout_width="85dp"
+        android:layout_height="210dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="5dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/round_border_gray">
+
+        <TextView
+            android:id="@+id/weather_aftertomorrow_day_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            android:textSize="22sp"
+            android:maxLines="1"
+            android:textColor="@color/colorPrimaryDark"
+            android:text="-" />
+
+        <ImageView
+            android:id="@+id/weather_aftertomorrow_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="80dip"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds ="true"
+            android:paddingLeft="7dip"
+            android:paddingBottom="17dip" />
+
+        <TextView
+            android:id="@+id/weather_aftertomorrow_temperatur"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:textSize="22sp"
+            android:maxLines="1"
+            android:textColor="@color/colorPrimaryDark"
+            android:text="-°C" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -1,0 +1,20 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:theme="@android:style/Theme.Translucent"
+    android:background="@color/colorTransparent">
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+
+    <ListPreference
+        android:key="lightmode"
+        android:entries="@array/lightmode"
+        android:entryValues="@array/lightmode_values"
+        android:defaultValue="auto2"
+        android:title="Licht" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="playSound"
+        android:title="Tor Offen Melodie" />
+
+</PreferenceScreen>

@@ -1,0 +1,39 @@
+<resources>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+      <!--  <item name="android:windowAnimationStyle">@style/ActivityAnimationStyle</item> -->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="ToolbarColoredBackArrow" parent="AppTheme">
+        <item name="android:textColorSecondary">@android:color/background_dark</item>
+    </style>
+
+    <!-- activities animation style start -->
+    <!--
+    <style name="ActivityAnimationStyle" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/fadein</item>
+        <item name="android:activityOpenExitAnimation">@anim/fadeout</item>
+        <item name="android:activityCloseEnterAnimation">@anim/fadein</item>
+        <item name="android:activityCloseExitAnimation">@anim/fadeout</item>
+    </style>
+    -->
+    <!-- activities animation style end -->
+
+    <style name="PreferencesTheme" parent="Theme.AppCompat">
+       <!-- <item name="android:windowBackground">@drawable/background_settings_left</item> -->
+        <item name="android:windowBackground">@color/colorPrimaryDark</item>
+        <item name="android:background">@color/colorTransparent</item>
+        <item name="android:textSize">22sp</item>
+    </style>
+
+    <style name="listViewPrefs" parent="@android:style/Widget.ListView">
+        <item name="android:background">@drawable/background_settings_right</item>
+        <item name="android:cacheColorHint">@drawable/background_settings_right</item>
+        <item name="android:textColor">@color/colorDeepBlack</item>
+    </style>
+
+</resources>

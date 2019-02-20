@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight">
+
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/stationName"
+        android:layout_width="500dp"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="20dp"
+        android:maxLines="1"
+        android:padding="7dp"
+        android:textSize="26sp" >
+    </TextView>
+
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/stationGenre"
+        android:layout_width="190dp"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="80dp"
+        android:padding="7dp"
+        android:maxLines="1"
+        android:textSize="26sp" >
+    </TextView>
+
+    <ImageView
+        android:id="@+id/favorite"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="7dip"
+        android:contentDescription="Favorite"
+        android:src="@drawable/ic_favorite_white_24dp"
+        android:visibility="invisible"/>
+
+    <ImageView
+        android:id="@+id/not_favorite"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="7dip"
+        android:contentDescription="Favorite"
+        android:src="@drawable/ic_favorite_border_gray_24dp"
+        android:visibility="visible"/>
+
+</RelativeLayout>

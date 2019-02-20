@@ -1,0 +1,29 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:theme="@android:style/Theme.Translucent"
+    android:background="@drawable/background_settings1">
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="plug-timer"
+        android:summary=""
+        android:title="@string/pref_plug_title"
+        android:background="@color/colorPrimaryDark"/>
+
+    <EditTextPreference
+        android:defaultValue="22:00"
+        android:inputType="time"
+        android:key="plug-on"
+        android:title="@string/pref_plug_on_title"
+        android:summary=""/>
+
+    <EditTextPreference
+        android:defaultValue="00:00"
+        android:inputType="time"
+        android:key="plug-off"
+        android:title="@string/pref_plug_off_title"
+        android:summary=""/>
+
+
+</PreferenceScreen>
