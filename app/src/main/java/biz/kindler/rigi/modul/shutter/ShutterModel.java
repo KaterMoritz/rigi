@@ -561,8 +561,10 @@ public class ShutterModel extends BaseModel {
         }
 
         public void run() {
-            sendSystemBroadcast(SystemModel.ACTION_LOG, getClass().getName(), "running shutter wakeup [step:" + mStep + ",SchlafzimmerState:" + mSchlafzimmerState + "]", getDateTimeFormatter().format(new Date()));
-            Log.i(TAG, "running shutter wakeup [step:" + mStep + ",mSchlafzimmerState:" + mSchlafzimmerState + "] " + getDateTimeFormatter().format(new Date()));
+            if( mSchlafzimmerState != null) {
+                sendSystemBroadcast(SystemModel.ACTION_LOG, getClass().getName(), "running shutter wakeup [step:" + mStep + ",SchlafzimmerState:" + mSchlafzimmerState + "]", getDateTimeFormatter().format(new Date()));
+                Log.i(TAG, "running shutter wakeup [step:" + mStep + ",mSchlafzimmerState:" + mSchlafzimmerState + "] " + getDateTimeFormatter().format(new Date()));
+            }
 
             if( mStep == TRACK_SHUTTER_CLOCK_DOZE) {
                 // schedule wakeup for the next day
@@ -581,7 +583,7 @@ public class ShutterModel extends BaseModel {
 
 
     private void doShutterSleeproomDoze( String schlafzimmerState) {
-        if( schlafzimmerState == null || schlafzimmerState.equals( CLOSED)|| schlafzimmerState.equals("NULL")) {
+        if( schlafzimmerState!= null && (schlafzimmerState == null || schlafzimmerState.equals( CLOSED)|| schlafzimmerState.equals("NULL"))) {
             sendItemCmdBroadcast( SCHLAFZIMMER_PRESET12, ON);
             Log.i(TAG, "SchlafzimmerPreset12 sendCmdOn");
             int stepTimeMinutes = Integer.valueOf( getPrefs().getString( PREF_SHUTTER_WAKEUP_TIME_STEP, "1"));
@@ -591,7 +593,7 @@ public class ShutterModel extends BaseModel {
     }
 
     private void doShutterSleeproomWakeup( String schlafzimmerState) {
-        if( ! schlafzimmerState.equals( CLOSED) && ! schlafzimmerState.equals( OPEN)) { // must be between fully closed and fully open
+        if( schlafzimmerState != null && ! schlafzimmerState.equals( CLOSED) && ! schlafzimmerState.equals( OPEN)) { // must be between fully closed and fully open
             sendItemCmdBroadcast( SCHLAFZIMMER_PRESET34, ON);
             Log.i(TAG, "SchlafzimmerPreset34 sendCmdOn");
             int stepTimeMinutes = Integer.valueOf( getPrefs().getString( PREF_SHUTTER_WAKEUP_TIME_STEP, "1"));
@@ -601,7 +603,7 @@ public class ShutterModel extends BaseModel {
     }
 
     private void doShutterSleeproomOpen( String schlafzimmerState) {
-        if( ! schlafzimmerState.equals( CLOSED) && ! schlafzimmerState.equals( OPEN)) { // must be between fully closed and fully open
+        if( schlafzimmerState != null && ! schlafzimmerState.equals( CLOSED) && ! schlafzimmerState.equals( OPEN)) { // must be between fully closed and fully open
             sendItemCmdBroadcast( SCHLAFZIMMER, UP);
             Log.i(TAG, "mSchlafzimmer sendCmdUp");
         }
