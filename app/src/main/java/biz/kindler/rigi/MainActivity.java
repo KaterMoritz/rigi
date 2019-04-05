@@ -164,6 +164,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         System.out.println( "do more in testbranch");
 
+        System.out.println( "do much more in testbranch");
+
         // test commit
 
 /*
