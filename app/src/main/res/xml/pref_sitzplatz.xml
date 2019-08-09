@@ -11,16 +11,14 @@
         android:title="@string/pref_plug_title"
         android:background="@color/colorPrimaryDark"/>
 
-    <EditTextPreference
+    <Preference
         android:defaultValue="22:00"
-        android:inputType="time"
         android:key="plug-on"
         android:title="@string/pref_plug_on_title"
         android:summary=""/>
 
-    <EditTextPreference
+    <Preference
         android:defaultValue="00:00"
-        android:inputType="time"
         android:key="plug-off"
         android:title="@string/pref_plug_off_title"
         android:summary=""/>

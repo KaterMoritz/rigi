@@ -92,11 +92,11 @@ public class GardenModel extends BaseModel {
     }
 
     private String getSwitchOnDateFromSettings() {
-        return getPrefs().getString(SitzplatzPreferenceFragment.PLUG_TIMER_ON, "17:00");
+        return getPrefs2().getString(SitzplatzPreferenceFragment.PLUG_TIMER_ON, "17:00");
     }
 
     private String getSwitchOffDateFromSettings() {
-        return getPrefs().getString(SitzplatzPreferenceFragment.PLUG_TIMER_OFF, "00:05");
+        return getPrefs2().getString(SitzplatzPreferenceFragment.PLUG_TIMER_OFF, "00:05");
     }
 
     private Date getSwitchDate(String hhmm, int addDays) {
