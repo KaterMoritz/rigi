@@ -4,8 +4,8 @@ android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
     defaultConfig {
-        //applicationId "biz.kindler.rigi"
-        applicationId "biz.kindler.rigi.officebuild"
+        applicationId "biz.kindler.rigi"
+        //applicationId "biz.kindler.rigi.officebuild"
         minSdkVersion 23
         versionCode 1
         versionName "1.0"

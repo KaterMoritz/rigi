@@ -159,10 +159,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
-        System.out.println( "doing something in master");
-
-        System.out.println( "doing more in master");
-
         // test commit
 
 /*

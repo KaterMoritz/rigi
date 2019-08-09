@@ -43,6 +43,10 @@ public class BasePreferenceFragment extends PreferenceFragment implements Prefer
         prefEditor.apply();
     }
 
+    protected String getStringPreference( String key, String defaultValue) {
+        return getActivity().getSharedPreferences(MainActivity.PREFS_ID, Activity.MODE_PRIVATE).getString( key, defaultValue);
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // send broadcast when change settings
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////

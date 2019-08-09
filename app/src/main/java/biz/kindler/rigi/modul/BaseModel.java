@@ -67,6 +67,10 @@ public abstract class BaseModel extends BroadcastReceiver {
         return mPrefs;
     }
 
+    protected SharedPreferences getPrefs2() {
+        return mCtx.getSharedPreferences(MainActivity.PREFS_ID, Activity.MODE_PRIVATE);
+    }
+
     protected static SharedPreferences getPrefs( Context ctx) {
         return PreferenceManager.getDefaultSharedPreferences(ctx);
     }
