@@ -5,6 +5,11 @@
     <!-- NOTE: EditTextPreference accepts EditText attributes. -->
     <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
 
+    <PreferenceCategory
+        android:title="Allgemein"
+        android:textSize="48dp"
+        android:textColor="@android:color/white">
+
     <EditTextPreference
         android:capitalize="words"
         android:defaultValue="http://192.168.1.131:8080"
@@ -74,5 +79,7 @@
         android:inputType="text"
         android:key="loremflickr_keyword"
         android:title="Suchwort für Loremflickr" />
+
+    </PreferenceCategory>
 
 </PreferenceScreen>
