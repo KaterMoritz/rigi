@@ -26,7 +26,8 @@
             android:paddingTop="300dp"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
-
+            android:clickable="true"
+            android:focusable="true"
             android:scrollbars="none" />
 
         <ImageButton

@@ -10,10 +10,12 @@ import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 
 import java.net.URL;
 
+import biz.kindler.rigi.Util;
 import biz.kindler.rigi.modul.clock.TimeAndDateModel;
 import biz.kindler.rigi.modul.entree.ScreensaverActivity;
 import biz.kindler.rigi.modul.system.Log;
@@ -27,16 +29,7 @@ public class BackgroundModel extends BroadcastReceiver {
 
     private final static String TAG = BackgroundModel.class.getSimpleName();
 
-    public static final String  BACKGROUND_MODE         = "pref_background";
-    public static final String  STANDARD                = "standard";
-    public static final String  SET1                    = "set1";
-    public static final String  SET2                    = "set2";
-    public static final String  DEVICE                  = "device";
-    public static final String  WEBCAM                  = "webcam";
-    public static final String  WEBRANDOM               = "webrandom";
-    private static final String LOREMFLICKR_KEYWORD     = "loremflickr_keyword";  // for WEBRANDOM
-    private static final String WEBCAM_URL              = "https://rigipic.ch/rigikapellekulm.jpg";
-    private static final String LOREMFLICKR_URL         = "http://loremflickr.com/800/1280/";   // add search keyword param
+    public static final String  BACKGROUND_CAMURL         = "background_camurl";
     private static final int    LEFT_PART_OF_IMAGE      = 0;
     private static final int    CENTER_PART_OF_IMAGE    = 1;
     private static final int    RIGHT_PART_OF_IMAGE     = 2;
@@ -56,6 +49,13 @@ public class BackgroundModel extends BroadcastReceiver {
         intentFilter.addAction(GeneralPreferenceFragment.ACTION_BACKGROUND_MODE_SETTINGS_CHANGED);
         intentFilter.addAction(Intent.ACTION_TIME_TICK);
         ctx.registerReceiver(this, intentFilter);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                nextWebcamPic();
+            }
+        }, 5000);
     }
 
     @Override
@@ -72,49 +72,20 @@ public class BackgroundModel extends BroadcastReceiver {
     }
 
     private void updateBackground( boolean settingsChanged, boolean newDay, int dayOfMonth) {
-        String bgMode = getBackgroundMode();
-
-        if( bgMode.equals( STANDARD) || bgMode.equals( SET1) || bgMode.equals( SET2)) {
-            if( settingsChanged || newDay) {
-                mView.setPicture(dayOfMonth);
-                Log.d(TAG, "update Picture [bgmode: " + bgMode + "] dayOfMonth: " + dayOfMonth);
-            }
-        } else if( bgMode.equals( WEBCAM)) {
-            if((mTickCnt>=30 || settingsChanged || newDay) && isScreensaferOff()) {
-                mTickCnt = 0;
-                Log.d(TAG, "update Picture by timer [bgmode: " + bgMode + "]");
-                new WebcamContent().execute( WEBCAM_URL);
-            }
-
-        } else if( bgMode.equals(WEBRANDOM)) {
-            if((mTickCnt>=60 || settingsChanged || newDay) && isScreensaferOff()) {
-                mTickCnt = 0;
-                Log.d(TAG, "update Picture by timer [bgmode: " + bgMode + "] keyword: " + getWebrandomKeyword());
-                new LoremflickrContent().execute( LOREMFLICKR_URL);
-            }
+        if((mTickCnt>=30 || settingsChanged || newDay) && isScreensaferOff()) {
+            mTickCnt = 0;
+            Log.d(TAG, "update Picture by timer");
+            new WebcamContent().execute( Util.getBackgroundWebcamUrl(mCtx));
         }
     }
 
     public void nextWebcamPic() {
         Log.d(TAG, "update webcam pic by user click");
-        new WebcamContent().execute( WEBCAM_URL);
-    }
-
-    public void nextWebrandomPic() {
-        Log.d(TAG, "update webrandom pic by user click");
-        new LoremflickrContent().execute( LOREMFLICKR_URL);
-    }
-
-    private String getBackgroundMode() {
-        return PreferenceManager.getDefaultSharedPreferences(mCtx).getString(BackgroundModel.BACKGROUND_MODE, STANDARD);
+        new WebcamContent().execute( Util.getBackgroundWebcamUrl(mCtx));
     }
 
     private boolean isScreensaferOff() {
         return PreferenceManager.getDefaultSharedPreferences(mCtx).getBoolean(ScreensaverActivity.SCREENSAVER_STATUS, true);
-    }
-
-    private String getWebrandomKeyword() {
-        return PreferenceManager.getDefaultSharedPreferences(mCtx).getString(LOREMFLICKR_KEYWORD, "cat");
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -170,35 +141,6 @@ public class BackgroundModel extends BroadcastReceiver {
                     Log.w(TAG, "resizedBitmap is null [" + (url == null ? "null" : url) + "]");
             } else
                 Log.w(TAG, "bmpImg is null [" + (url == null ? "null" : url) + "]");
-        }
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Loremflickr
-    // http://loremflickr.com/800/1280/cat  (see: http://loremflickr.com/)
-    // loremflicks doc: 2016-09-15: To limit use of server resources, served images will not be larger than 1280 pixels to a side.
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public class LoremflickrContent extends AsyncTask<String, String, Drawable> {
-
-        @Override
-        protected Drawable doInBackground(String... params) {
-            String url = params[0];
-            String searchKeyword = getWebrandomKeyword();
-            String fullUrl = url + searchKeyword;
-
-            try {
-                Log.d(TAG, "LoremflickrContent doInBackground [url: " + fullUrl + "]");
-                return Drawable.createFromStream(((java.io.InputStream) new java.net.URL(fullUrl).getContent()), "loremflickr");
-            } catch (Exception e) {
-                Log.w(TAG, e.getMessage());
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute( Drawable drawImg) {
-            if( drawImg != null)
-                mView.showPicture( drawImg);
         }
     }
 }

@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Handler;
 
@@ -43,6 +45,10 @@ public class ItemManager2 extends BroadcastReceiver implements EventSourceHandle
     public static  String                   SSE_CONNECTED               = "sse-connected";
     public static  String                   SSE_DISCONNECTED            = "sse-disconnected";
     public static  String                   SSE_INFO                    = "sse-info";
+    public static  String                   NETWORK_STATE               = "network-state";
+    public static  String                   NETWORK_CONNECTED           = "network-connected";
+    public static  String                   NETWORK_DISCONNECTED        = "network-disconnected";
+    public static  String                   NETWORK_INFO                = "network-info";
 
     public static  String                   ACTION_HABITEMS_LOADED      =     "action-habitems-loaded";
     public static  String                   KEY_LIST_SIZE               =     "key-list-size";
@@ -51,6 +57,7 @@ public class ItemManager2 extends BroadcastReceiver implements EventSourceHandle
     private Context                         mCtx;
     private String                          mHost;
     private boolean                         mSSEconnected;
+    private boolean                         mNetworkConnected;
 
 
 
@@ -65,12 +72,15 @@ public class ItemManager2 extends BroadcastReceiver implements EventSourceHandle
         intentFilter.addAction(ACTION_ITEM_READ);
         intentFilter.addAction(ACTION_ITEM_CMD);
         intentFilter.addAction(Intent.ACTION_TIME_TICK);
+        //intentFilter.addAction( "android.net.conn.CONNECTIVITY_CHANGE");
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         ctx.registerReceiver(this, intentFilter);
 
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 sendSystemBroadcast( SSE_DISCONNECTED, mHost == null || mHost.length() == 0 ? "no openhab host in settings" : "not init");
+                checkForCreateSSESocket();
                // sendItemLoadedBroadcast( 0);
             }
         }, 5000);
@@ -107,9 +117,29 @@ public class ItemManager2 extends BroadcastReceiver implements EventSourceHandle
             new ItemCmd().execute( new String[] {itemName, cmd});
         }
         else if( action.equals(Intent.ACTION_TIME_TICK)) {
-           if( ! mSSEconnected && mHost != null && mHost.length() > 0)
-               new SSESocket(this).execute();
+            checkForCreateSSESocket();
         }
+        else if( action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+            mNetworkConnected = hasNetwork();
+            sendNetworkBroadcast( mNetworkConnected ? NETWORK_CONNECTED: NETWORK_DISCONNECTED, "");
+        }
+    }
+
+    private void checkForCreateSSESocket() {
+        if( ! mSSEconnected && mHost != null && mHost.length() > 0)
+            new SSESocket(this).execute();
+    }
+
+    protected boolean hasNetwork() {
+        ConnectivityManager manager = (ConnectivityManager)mCtx.getSystemService( Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni = manager.getActiveNetworkInfo();
+
+        if( ni == null || (ni != null && ni.getState() == NetworkInfo.State.DISCONNECTED))
+            return false;
+        else if(ni != null && ni.getState() == NetworkInfo.State.CONNECTED)
+            return true;
+        else
+            return false;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -275,6 +305,14 @@ public class ItemManager2 extends BroadcastReceiver implements EventSourceHandle
         bc.setAction( ACTION_SYSTEM);
         bc.putExtra( SSE_STATE, sseState);
         bc.putExtra( SSE_INFO, addInfo == null ? "" : addInfo);
+        mCtx.sendBroadcast(bc);
+    }
+
+    protected void sendNetworkBroadcast( String networkState, String addInfo) {
+        Intent bc = new Intent();
+        bc.setAction( ACTION_SYSTEM);
+        bc.putExtra( NETWORK_STATE, networkState);
+        bc.putExtra( NETWORK_INFO, addInfo == null ? "" : addInfo);
         mCtx.sendBroadcast(bc);
     }
 

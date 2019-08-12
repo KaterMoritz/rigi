@@ -91,7 +91,14 @@ public class SystemModel extends BaseModel {
         else if(action.equals(ItemManager2.ACTION_SYSTEM)) {
             String state = intent.getStringExtra( ItemManager2.SSE_STATE);
             String info = intent.getStringExtra( ItemManager2.SSE_INFO);
-            handleItemManagerAction( state, info);
+            if( state != null)
+                handleItemManagerAction(state, info);
+            else {
+                String networkState = intent.getStringExtra(ItemManager2.NETWORK_STATE);
+                String networkInfo = intent.getStringExtra(ItemManager2.NETWORK_INFO);
+                if( networkState != null)
+                    handleNetworkAction(networkState, info);
+            }
         }
     }
 
@@ -154,17 +161,29 @@ public class SystemModel extends BaseModel {
     }
 
     private void handleItemManagerAction( String state, String info) {
-        if( state.equals(ItemManager2.SSE_CONNECTED)) {
-            if( isModulInList())
-                startTimerForHideModul( 15);
-            mDataHolder.setHighlighted(false);
-            mSSEInfo = "SSE connected";
+        if( state != null) {
+           if (state.equals(ItemManager2.SSE_CONNECTED)) {
+                if (isModulInList())
+                    startTimerForHideModul(15);
+                mDataHolder.setHighlighted(false);
+                mSSEInfo = "SSE connected";
+            } else if (state.equals(ItemManager2.SSE_DISCONNECTED)) {
+                mDataHolder.setHighlighted(true);
+                mSSEInfo = "SSE disconnected [" + info + "]";
+            }
+
+            updateInfoText(true);
         }
-        else if( state.equals(ItemManager2.SSE_DISCONNECTED)) {
-            mDataHolder.setHighlighted(true);
-            mSSEInfo = "SSE disconnected [" + info + "]";
+    }
+
+    private void handleNetworkAction( String state, String info) {
+        if( state != null) {
+            if (state.equals(ItemManager2.NETWORK_DISCONNECTED)) {
+                mDataHolder.setHighlighted(true);
+                mSSEInfo = "Kein Netzwerk";
+                updateInfoText(true);
+            }
         }
-        updateInfoText( true);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

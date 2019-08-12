@@ -65,20 +65,11 @@
         android:title="Screensaver aus"
         android:summary="@string/pref_screensaver_off"/>
 
-    <ListPreference
-        android:defaultValue="standard"
-        android:entries="@array/pref_background_values"
-        android:entryValues="@array/pref_background_keys"
-        android:key="pref_background"
-        android:negativeButtonText="@null"
-        android:positiveButtonText="@null"
-        android:title="@string/pref_background_title" />
-
     <EditTextPreference
-        android:defaultValue="cat"
-        android:inputType="text"
-        android:key="loremflickr_keyword"
-        android:title="Suchwort für Loremflickr" />
+        android:defaultValue="https://rigipic.ch/rigikapellekulm.jpg"
+        android:key="background_camurl"
+        android:inputType="textUri"
+        android:title="@string/pref_background_title" />
 
     </PreferenceCategory>
 

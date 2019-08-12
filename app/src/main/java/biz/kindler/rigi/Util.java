@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
+import biz.kindler.rigi.modul.background.BackgroundModel;
 import biz.kindler.rigi.settings.GeneralPreferenceFragment;
 
 /**
@@ -57,5 +58,10 @@ public class Util {
 
     public static int getDayOfYearToday() {
         return new GregorianCalendar().get(Calendar.DAY_OF_YEAR);
+    }
+
+    public static String getBackgroundWebcamUrl( Context ctx) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+        return prefs.getString(BackgroundModel.BACKGROUND_CAMURL, "https://rigipic.ch/rigikapellekulm.jpg");
     }
 }

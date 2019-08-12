@@ -4,11 +4,13 @@ import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
 import android.view.MenuItem;
 import android.view.WindowManager;
 
 import biz.kindler.rigi.R;
+import biz.kindler.rigi.Util;
 import biz.kindler.rigi.modul.background.BackgroundModel;
 import biz.kindler.rigi.modul.entree.EntreeModel;
 
@@ -29,7 +31,6 @@ public class GeneralPreferenceFragment extends BasePreferenceFragment {
     public static final String DOOR_CAM                = "door_cam";
     private static final String SCREENSAVER_ON          = "screensaver-on";
     private static final String SCREENSAVER_OFF         = "screensaver-off";
-    private static final String LOREMFLICKR_KEYWORD     = "loremflickr_keyword";
 
     private EditTextPreference  mOpenHabServerPref;
     private EditTextPreference  mDoorCamPref;
@@ -38,8 +39,7 @@ public class GeneralPreferenceFragment extends BasePreferenceFragment {
     private EditTextPreference  mTwilightLevelPref;
     private EditTextPreference  mScreensaverOnPref;
     private EditTextPreference  mScreensaverOffPref;
-    private ListPreference      mBackgroundPref;
-    private EditTextPreference  mLoremflickrKeywordPref;
+    private EditTextPreference      mBackgroundPref;
 
 
     @Override
@@ -85,17 +85,10 @@ public class GeneralPreferenceFragment extends BasePreferenceFragment {
         String screensaverOffState = mScreensaverOffPref.getSharedPreferences().getString( SCREENSAVER_OFF, "05:00");
         updateSummary(mScreensaverOffPref, screensaverOffState, R.string.pref_screensaver_off);
 
-        mBackgroundPref = (ListPreference)findPreference(BackgroundModel.BACKGROUND_MODE);
+        mBackgroundPref = (EditTextPreference)findPreference(BackgroundModel.BACKGROUND_CAMURL);
         mBackgroundPref.setOnPreferenceChangeListener(this);
-        String bgMode = mBackgroundPref.getSharedPreferences().getString(BackgroundModel.BACKGROUND_MODE, "standard");
-        updateSummaryForList(mBackgroundPref, bgMode, R.array.pref_background_keys, R.array.pref_background_values);
-
-        mLoremflickrKeywordPref = (EditTextPreference)findPreference( LOREMFLICKR_KEYWORD);
-        mLoremflickrKeywordPref.setOnPreferenceChangeListener(this);
-        mLoremflickrKeywordPref.setOnPreferenceClickListener(this);
-        mLoremflickrKeywordPref.setEnabled( bgMode.equals( BackgroundModel.WEBRANDOM));
-        String storedKeyword = mLoremflickrKeywordPref.getSharedPreferences().getString(LOREMFLICKR_KEYWORD, "cat");
-        updateSummary(mLoremflickrKeywordPref, storedKeyword);
+        String backgroundCamUrl = mBackgroundPref.getSharedPreferences().getString( BackgroundModel.BACKGROUND_CAMURL, "https://rigipic.ch/rigikapellekulm.jpg");
+        updateSummary(mBackgroundPref, backgroundCamUrl);
     }
 
     @Override
@@ -125,25 +118,14 @@ public class GeneralPreferenceFragment extends BasePreferenceFragment {
             updateSummary(mScreensaverOnPref, (String)newValue, R.string.pref_screensaver_on);
         else if ( preference.getKey().equals( SCREENSAVER_OFF))
             updateSummary(mScreensaverOffPref, (String)newValue, R.string.pref_screensaver_off);
-        else if ( preference.getKey().equals( BackgroundModel.BACKGROUND_MODE)) {
-            updateSummaryForList(mBackgroundPref, (String)newValue, R.array.pref_background_keys, R.array.pref_background_values);
-            sendSettingsChangedBroadcast( preference.getContext(), ACTION_BACKGROUND_MODE_SETTINGS_CHANGED, preference.getKey(), newValue.toString());
-            mLoremflickrKeywordPref.setEnabled( newValue.equals( BackgroundModel.WEBRANDOM));
+        else if ( preference.getKey().equals( BackgroundModel.BACKGROUND_CAMURL)) {
+            updateSummary(mBackgroundPref, (String)newValue);
         }
-        else if ( preference.getKey().equals( LOREMFLICKR_KEYWORD)) {
-            updateSummary(mLoremflickrKeywordPref, (String)newValue);
-            sendSettingsChangedBroadcast( preference.getContext(), ACTION_BACKGROUND_MODE_SETTINGS_CHANGED, preference.getKey(), newValue.toString());
-        }
-
         return true;
     }
 
     @Override
     public boolean onPreferenceClick(Preference preference) {
-        if ( preference.getKey().equals( LOREMFLICKR_KEYWORD)) {
-            mLoremflickrKeywordPref.getEditText().setSelection( mLoremflickrKeywordPref.getText().length());
-            return false;
-        }
         return true;
     }
 }
