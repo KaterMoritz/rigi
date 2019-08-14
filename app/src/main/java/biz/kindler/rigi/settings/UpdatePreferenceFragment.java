@@ -68,7 +68,7 @@ public class UpdatePreferenceFragment extends BasePreferenceFragment {
             return pinfo.versionName;
         } catch (Exception e) {
             return "-";
-        } 
+        }
     }
 
     @Override

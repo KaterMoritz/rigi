@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cam"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fitsSystemWindows="true"
+    android:background="@color/colorDeepBlack"
+    tools:context="biz.kindler.rigi.modul.sonnerie.DoorCamArchiveActivity">
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"/>
+
+
+    <RelativeLayout
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:layout_above="@id/cam_archive_scrollview"
+        android:layout_centerVertical="true"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:background="@drawable/rounded_corners">
+
+        <TextView
+            android:id="@+id/img_timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="24dp"
+            android:textFontWeight="bold"
+            android:text="timestamp" />
+    </RelativeLayout>
+
+
+
+    <HorizontalScrollView
+        android:id="@+id/cam_archive_scrollview"
+        android:layout_width="fill_parent"
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="15dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/thumbImgLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:padding="1dip"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true">
+
+        </LinearLayout>
+
+    </HorizontalScrollView >
+
+
+</RelativeLayout>

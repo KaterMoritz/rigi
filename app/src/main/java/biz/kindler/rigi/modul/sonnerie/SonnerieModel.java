@@ -123,12 +123,17 @@ public class SonnerieModel extends BaseModel {
     }
 
     private void showCam( boolean openByButton, boolean showLiveCam) {
-        Intent calIntent = new Intent("CamIntent", null, getContext(), DoorCamActivity2.class);
-        Bundle b = new Bundle();
-        b.putInt(DoorCamActivity.OPEN_BY, openByButton ? DoorCamActivity.OPEN_MANUELL : DoorCamActivity.OPEN_AUTO);
-        b.putInt(DoorCamActivity.SHOW_TYPE, showLiveCam ? DoorCamActivity.SHOW_LIVE : DoorCamActivity.SHOW_ARCHIVE);
-        calIntent.putExtras(b);
-        getContext().startActivity(calIntent);
+        if( ! showLiveCam) {
+            Intent camArchIntent = new Intent("CamArchIntent", null, getContext(), DoorCamArchiveActivity.class);
+            getContext().startActivity(camArchIntent);
+        } else {
+            Intent calIntent = new Intent("CamIntent", null, getContext(), DoorCamActivity2.class);
+            Bundle b = new Bundle();
+            b.putInt(DoorCamActivity.OPEN_BY, openByButton ? DoorCamActivity.OPEN_MANUELL : DoorCamActivity.OPEN_AUTO);
+            b.putInt(DoorCamActivity.SHOW_TYPE, showLiveCam ? DoorCamActivity.SHOW_LIVE : DoorCamActivity.SHOW_ARCHIVE);
+            calIntent.putExtras(b);
+            getContext().startActivity(calIntent);
+        }
     }
 
     public static void playNofificationSound( Context ctx) {
