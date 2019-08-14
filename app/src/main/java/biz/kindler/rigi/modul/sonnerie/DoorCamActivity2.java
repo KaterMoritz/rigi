@@ -11,6 +11,8 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -285,8 +288,14 @@ public class DoorCamActivity2 extends AppCompatActivity implements View.OnClickL
             if( tagData.length == 2)
                 fileAbs = getImgPathDir() + File.separator + tagData[1] + ".jpg";
 
-            Bitmap bmp = BitmapFactory.decodeFile(fileAbs);
-            showMainCamImg( bmp);
+            final Bitmap bmp = BitmapFactory.decodeFile(fileAbs);
+
+            new Handler( Looper.getMainLooper()).post( new Runnable() {
+                @Override
+                public void run() {
+                    showMainCamImg( bmp);
+                }
+            });
 
             mImgTitleTxtView.setText( getReadableTimestamp( new Date( Long.parseLong( tagData[1]))));
 

@@ -36,6 +36,7 @@
     <style name="PreferencesTheme" parent="Theme.AppCompat">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:textSize">22sp</item>
+        <item name="colorPrimary">@color/colorWhite</item>
     </style>
 
     <style name="TransBg">

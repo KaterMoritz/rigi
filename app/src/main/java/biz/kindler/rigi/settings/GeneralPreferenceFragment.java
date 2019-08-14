@@ -7,6 +7,7 @@ import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
 import android.view.MenuItem;
+import android.view.Window;
 import android.view.WindowManager;
 
 import biz.kindler.rigi.R;
@@ -46,9 +47,11 @@ public class GeneralPreferenceFragment extends BasePreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.pref_general);
-        setHasOptionsMenu(true);
+        setHasOptionsMenu(false);
 
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+      //  getActivity().requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getActivity().setTitle("");
 
         mOpenHabServerPref = (EditTextPreference)findPreference(OPENHAB_SERVER);
         mOpenHabServerPref.setOnPreferenceChangeListener(this);

@@ -5,6 +5,11 @@
     <!-- NOTE: EditTextPreference accepts EditText attributes. -->
     <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
 
+    <PreferenceCategory
+        android:title="Garage"
+        android:textSize="48dp"
+        android:textColor="@android:color/white">
+
     <ListPreference
         android:key="lightmode"
         android:entries="@array/lightmode"
@@ -16,5 +21,8 @@
         android:defaultValue="true"
         android:key="playSound"
         android:title="Tor Offen Melodie" />
+
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

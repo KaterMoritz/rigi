@@ -1,0 +1,28 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:theme="@android:style/Theme.Translucent">
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+
+    <PreferenceCategory
+        android:title="Info"
+        android:textSize="48dp"
+        android:textColor="@android:color/white">
+
+    <Preference
+        android:title="Applikation"
+        android:summary="Patrick Kindler CH [www.kindler.biz]"/>
+
+    <Preference
+        android:title="Version Lokal"
+        android:key="local-version"
+        android:summary="-"/>
+
+    <Preference
+        android:title="Version Server"
+        android:key="server-version"
+        android:summary="-"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

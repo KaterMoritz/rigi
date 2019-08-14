@@ -5,6 +5,11 @@
     <!-- NOTE: EditTextPreference accepts EditText attributes. -->
     <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
 
+    <PreferenceCategory
+        android:title="Musik"
+        android:textSize="48dp"
+        android:textColor="@android:color/white">
+
     <EditTextPreference
         android:capitalize="words"
         android:inputType="text"
@@ -25,5 +30,7 @@
         android:key="socket_switch"
         android:title="@string/pref_socket_switch_title"
         android:background="@color/colorPrimaryDark"/>
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

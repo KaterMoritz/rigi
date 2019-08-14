@@ -5,6 +5,11 @@
     <!-- NOTE: EditTextPreference accepts EditText attributes. -->
     <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
 
+    <PreferenceCategory
+        android:title="Log"
+        android:textSize="48dp"
+        android:textColor="@android:color/white">
+
     <EditTextPreference
         android:defaultValue="mein Gerät"
         android:inputType="text"
@@ -49,5 +54,7 @@
         android:inputType="text"
         android:key="systemservice"
         android:title="System Service" />
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

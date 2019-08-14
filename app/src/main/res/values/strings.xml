@@ -175,7 +175,7 @@
     <string name="pref_title_system_sync_settings">System sync settings</string>
 
     <!-- Example settings for Notifications -->
-    <string name="pref_header_notifications">Notifications</string>
+    <string name="pref_header_notifications">Benachrichtigung</string>
 
     <string name="pref_title_new_message_notifications">New message notifications</string>
 
@@ -207,6 +207,8 @@
     <string name="pref_twilight_level_summary">Schwellwert Tageslicht ist bei # LUX</string>
 
     <string name="pref_header_kiosk">Kiosk</string>
+
+    <string name="pref_header_info">Info</string>
 
     <string name="pref_header_transport">Fahrplan</string>
 

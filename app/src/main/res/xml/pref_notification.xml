@@ -1,5 +1,11 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+
+    <PreferenceCategory
+        android:title="Benachrichtigung"
+        android:textSize="48dp"
+        android:textColor="@android:color/white">
+
     <!-- A 'parent' preference, which enables/disables child preferences (below)
          when checked/unchecked. -->
     <SwitchPreference
@@ -35,5 +41,7 @@
         android:title="Test Postmeldung Benachrichtigung"
         android:key="testMailNotificationSound"
         android:summary="Melodie und Lautstärke"/>
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

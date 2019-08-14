@@ -4,6 +4,11 @@
     <!-- NOTE: EditTextPreference accepts EditText attributes. -->
     <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
 
+    <PreferenceCategory
+        android:title="Kiosk"
+        android:textSize="48dp"
+        android:textColor="@android:color/white">
+
     <Preference
         android:title="set device owner"
         android:key="cmdDeviceOwner"
@@ -39,5 +44,7 @@
         android:title="Applikation beenden"
         android:key="exitApp"
         android:summary=""/>
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

@@ -3,6 +3,12 @@
     android:background="@color/colorTransparent">
 
     <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+
+    <PreferenceCategory
+        android:title="Bewässerung"
+        android:textSize="48dp"
+        android:textColor="@android:color/white">
+
     <ListPreference
         android:defaultValue="5400000"
         android:entries="@array/pref_man_duration"
@@ -12,5 +18,6 @@
         android:positiveButtonText="@null"
         android:title="@string/pref_manuell_duration" />
 
+    </PreferenceCategory>
 
 </PreferenceScreen>

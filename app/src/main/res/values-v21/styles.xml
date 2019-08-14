@@ -25,8 +25,9 @@
 
     <style name="PreferencesTheme" parent="Theme.AppCompat">
        <!-- <item name="android:windowBackground">@drawable/background_settings_left</item> -->
-        <item name="android:windowBackground">@color/colorPrimaryDark</item>
+        <item name="android:windowBackground">@color/colorDeepBlack</item>
         <item name="android:background">@color/colorTransparent</item>
+        <item name="android:textColor">#FFFFFF</item>
         <item name="android:textSize">22sp</item>
     </style>
 
