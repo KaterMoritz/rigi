@@ -33,7 +33,10 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -47,7 +50,9 @@ import java.util.TimerTask;
 
 import biz.kindler.rigi.MainActivity;
 import biz.kindler.rigi.R;
+import biz.kindler.rigi.Util;
 import biz.kindler.rigi.modul.system.Log;
+import biz.kindler.rigi.settings.CamPreferenceFragment;
 import biz.kindler.rigi.settings.GeneralPreferenceFragment;
 
 /**
@@ -78,7 +83,7 @@ public class DoorCamActivity2 extends AppCompatActivity implements View.OnClickL
     private RelativeLayout      mCamLayout;
     private Timer               mImgUpdateTimer;
     private Timer               mCloseActivityTimer;
-    private static final int    UPDATE_INTERVALL                    = 50;
+    private static final int    UPDATE_INTERVALL                    = 50;//50;
     private static final int    MAN_OPEN_DO_CLOSE_ACTIVITY_AFTER    = 1200000; //120000;
     private static final int    AUTO_OPEN_DO_CLOSE_ACTIVITY_AFTER   = 60000; //120000;
     private static final int    MAX_PICTURES_WHEN_BELL_RINGS        = 15; //TODO: getPrefs()
@@ -101,6 +106,8 @@ public class DoorCamActivity2 extends AppCompatActivity implements View.OnClickL
     private ImageButton         mRecordBtn;
     private ImageView           mStoredImageSymbol;
     private String              mDoorCamUrl;
+    private URLConnection       mUrlConn;
+    private int                 mTimerTaskCnt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,7 +141,7 @@ public class DoorCamActivity2 extends AppCompatActivity implements View.OnClickL
         mCamLayout.setOnTouchListener(new OnSwipeTouchListener(this));
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        mDoorCamUrl = prefs.getString(GeneralPreferenceFragment.DOOR_CAM, null);
+        mDoorCamUrl = prefs.getString(CamPreferenceFragment.DOOR_CAM, null);
 
         // record button
         mRecordBtn = (ImageButton) findViewById(R.id.record_button);
@@ -145,7 +152,7 @@ public class DoorCamActivity2 extends AppCompatActivity implements View.OnClickL
 
         if( mShowType == SHOW_LIVE) {
             mImgUpdateTimer = new Timer();
-            mImgUpdateTimer.schedule(new UpdatePictureTimerTask(), 0);
+            mImgUpdateTimer.schedule(new UpdatePictureTimerTask(), 0, UPDATE_INTERVALL);
 
             mRecordBtn.setTag( RECORD_OFF_TAG);
             mRecordBtn.setVisibility( View.VISIBLE);
@@ -431,12 +438,22 @@ public class DoorCamActivity2 extends AppCompatActivity implements View.OnClickL
     // update intervall task
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private class UpdatePictureTimerTask extends TimerTask {
+        final Handler handler = new Handler();
 
         public void run() {
-            if (mDoorCamUrl != null) {
-                Log.d(TAG, "TimerTask Updating DoorCam image");
-                new DoorCamTask().execute(mDoorCamUrl);
-            }
+            handler.post(new Runnable() {
+                public void run() {
+                    try {
+                        if (mDoorCamUrl != null) {
+                            Log.d(TAG, "TimerTask Updating DoorCam image");
+                            DoorCamTask dcTask = new DoorCamTask();
+                            dcTask.execute(mDoorCamUrl);
+                        }
+                    } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                    }
+                }
+            });
         }
     }
 
@@ -450,11 +467,29 @@ public class DoorCamActivity2 extends AppCompatActivity implements View.OnClickL
         protected Bitmap doInBackground(String... params) {
             url = params[0];
 
+            Log.d(TAG, "DoorCam doInBackground [url: " + url + "] mTimerTaskCnt: " + mTimerTaskCnt);
+            mTimerTaskCnt++;
+
             try {
-                Log.d(TAG, "DoorCam doInBackground [url: " + url + "]");
-                return BitmapFactory.decodeStream( new URL(url).openConnection().getInputStream());
+              //  if( mUrlConn == null) {
+                    mUrlConn = new URL(url).openConnection();
+                    mUrlConn.setConnectTimeout( 2000);
+                    mUrlConn.setReadTimeout( 2000);
+                    mUrlConn.setUseCaches( false);
+                    Log.d(TAG, "create mUrlConn");
+               // }
+
+
+
+                return BitmapFactory.decodeStream( mUrlConn.getInputStream());// new URL(url).openConnection().getInputStream());
+            } catch (IOException e) {
+                Log.d(TAG, e.getMessage());
+                Util.showToastInUiThread(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG);
+              //  mDoKeepUpdateRunning = false;
+                return null;
             } catch (Exception e) {
-                Log.w(TAG, e.getMessage());
+                Log.d(TAG, e.getMessage());
+                Util.showToastInUiThread(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG);
                 return null;
             }
         }
@@ -464,23 +499,30 @@ public class DoorCamActivity2 extends AppCompatActivity implements View.OnClickL
         protected void onPostExecute( Bitmap bmpImg) {
             if (bmpImg != null)
                 showMainCamImg( bmpImg);
-            else
-                Log.w(TAG, "bmpImg is null [" + (url == null ? "null" : url) + "]");
+            else {
+                Log.d(TAG, "bmpImg is null [" + (url == null ? "null" : url) + "]");
+                Util.showToastInUiThread(getApplicationContext(), "no picture", Toast.LENGTH_LONG);
+            }
 
             mPicCnt++;
-            if((mOpenBy == OPEN_AUTO || mRecordBtn.getTag().equals( RECORD_ON_TAG)) && mPicCnt >= mStoreEveryXPicture && mStoredPicCnt < MAX_PICTURES_WHEN_BELL_RINGS) {
-                mPicCnt = 0;
+            Log.d(TAG, "mPicCnt:" + mPicCnt);
 
-                if( bmpImg != null) {
-                    mStoredPicCnt++;
-                    String status = storePicture(bmpImg);
-                    Log.d(TAG, "store picture: [" + status + "]");
-                }
-            } else
-                mStoredImageSymbol.setVisibility( View.INVISIBLE);
+            if (bmpImg != null) {
+                Util.showToastInUiThread(getApplicationContext(), mPicCnt + "", Toast.LENGTH_SHORT);
+                if ((mOpenBy == OPEN_AUTO || mRecordBtn.getTag().equals(RECORD_ON_TAG)) && mPicCnt >= mStoreEveryXPicture && mStoredPicCnt < MAX_PICTURES_WHEN_BELL_RINGS) {
+                    mPicCnt = 0;
 
-            if( mDoKeepUpdateRunning)
-                mImgUpdateTimer.schedule( new UpdatePictureTimerTask(), UPDATE_INTERVALL);
+                    if (bmpImg != null) {
+                        mStoredPicCnt++;
+                        String status = storePicture(bmpImg);
+                        Log.d(TAG, "store picture: [" + status + "]");
+                    }
+                } else
+                    mStoredImageSymbol.setVisibility(View.INVISIBLE);
+            }
+
+          //  if( mDoKeepUpdateRunning)
+           //     mImgUpdateTimer.schedule( new UpdatePictureTimerTask(), UPDATE_INTERVALL);
         }
 
         private String storePicture( Bitmap bmp) {

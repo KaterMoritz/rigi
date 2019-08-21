@@ -29,18 +29,16 @@ public class GeneralPreferenceFragment extends BasePreferenceFragment {
     public static final String PREFS_TWILIGHT_LEVEL     = "pref_twilight_level";
 
     public static final String OPENHAB_SERVER          = "openhab_server";
-    public static final String DOOR_CAM                = "door_cam";
     private static final String SCREENSAVER_ON          = "screensaver-on";
     private static final String SCREENSAVER_OFF         = "screensaver-off";
 
     private EditTextPreference  mOpenHabServerPref;
-    private EditTextPreference  mDoorCamPref;
     private EditTextPreference  mDisplayOffPref;
     private EditTextPreference  mDawnLevelPref;
     private EditTextPreference  mTwilightLevelPref;
     private EditTextPreference  mScreensaverOnPref;
     private EditTextPreference  mScreensaverOffPref;
-    private EditTextPreference      mBackgroundPref;
+    private EditTextPreference  mBackgroundPref;
 
 
     @Override
@@ -57,11 +55,6 @@ public class GeneralPreferenceFragment extends BasePreferenceFragment {
         mOpenHabServerPref.setOnPreferenceChangeListener(this);
         String openHabServerIP = mOpenHabServerPref.getSharedPreferences().getString( OPENHAB_SERVER, "http://192.168.1.131:8080");
         updateSummary( mOpenHabServerPref, openHabServerIP);
-
-        mDoorCamPref = (EditTextPreference)findPreference(DOOR_CAM);
-        mDoorCamPref.setOnPreferenceChangeListener(this);
-        String doorCamServerIP = mDoorCamPref.getSharedPreferences().getString( DOOR_CAM, "http://192.168.1.112/html/cam_pic.php");
-        updateSummary( mDoorCamPref, doorCamServerIP);
 
         mDisplayOffPref = (EditTextPreference)findPreference(EntreeModel.PREFS_DISPLAY_OFF_AFTER_MINUTES);
         mDisplayOffPref.setOnPreferenceChangeListener(this);
@@ -109,8 +102,6 @@ public class GeneralPreferenceFragment extends BasePreferenceFragment {
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         if ( preference.getKey().equals( OPENHAB_SERVER))
             updateSummary(mOpenHabServerPref, (String)newValue);
-        else if ( preference.getKey().equals( DOOR_CAM))
-            updateSummary(mDoorCamPref, (String)newValue);
         else if ( preference.getKey().equals( EntreeModel.PREFS_DISPLAY_OFF_AFTER_MINUTES))
             updateSummary(mDisplayOffPref, (String)newValue, R.string.pref_display_off);
         else if ( preference.getKey().equals( PREFS_DAWN_LEVEL))

@@ -100,8 +100,9 @@
 
     <!-- Strings related to Settings -->
 
-
     <string name="pref_header_calendar">Kalender</string>
+
+    <string name="pref_header_cam">Kamera</string>
 
     <!-- Example General settings -->
     <string name="pref_header_general">Allgemein</string>
@@ -306,6 +307,8 @@
         <item>WateringModel</item>
         <item>SonnerieModel</item>
         <item>DoorCamActivity</item>
+        <item>DoorCamLiveActivity</item>
+        <item>DoorCamArchiveActivity</item>
         <item>TimeAndDateModel</item>
         <item>BackgroundModel</item>
         <item>WeatherModel</item>
@@ -317,6 +320,49 @@
         <item>StoreLogTask</item>
         <item>SendMailTask</item>
         <item>ScreensaverActivity</item>
+    </string-array>
+
+    <string-array name="camrotation">
+        <item>0</item>
+        <item>90</item>
+        <item>180</item>
+    </string-array>
+
+    <string-array name="storepicintervall">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+    </string-array>
+
+    <string-array name="maxpiconbellrings">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+        <item>20</item>
     </string-array>
 
     <string-array name="empty_array"/>

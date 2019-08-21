@@ -1,0 +1,48 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:theme="@android:style/Theme.Translucent"
+    android:background="@color/colorTransparent">
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+
+    <PreferenceCategory
+        android:title="Haustür Kamera"
+        android:textSize="48dp"
+        android:textColor="@android:color/white">
+
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="http://192.168.1.112/html/cam_pic.php"
+        android:inputType="textUri"
+        android:key="door_cam"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="URL" />
+
+
+    <ListPreference
+        android:key="cam_rotation"
+        android:entries="@array/camrotation"
+        android:entryValues="@array/camrotation"
+        android:defaultValue="0"
+        android:title="Rotierung" />
+
+    <ListPreference
+        android:key="storepicintervall"
+        android:entries="@array/storepicintervall"
+        android:entryValues="@array/storepicintervall"
+        android:defaultValue="3"
+        android:title="Bild speichern Intervall" />
+
+        <ListPreference
+            android:key="maxpiconbellrings"
+            android:entries="@array/maxpiconbellrings"
+            android:entryValues="@array/maxpiconbellrings"
+            android:defaultValue="15"
+            android:title="Maximale Anzahl Bilder wenn es klingelt" />
+
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

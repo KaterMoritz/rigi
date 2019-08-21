@@ -127,10 +127,9 @@ public class SonnerieModel extends BaseModel {
             Intent camArchIntent = new Intent("CamArchIntent", null, getContext(), DoorCamArchiveActivity.class);
             getContext().startActivity(camArchIntent);
         } else {
-            Intent calIntent = new Intent("CamIntent", null, getContext(), DoorCamActivity2.class);
+            Intent calIntent = new Intent("CamIntent", null, getContext(), DoorCamLiveActivity.class);//DoorCamActivity2.class);
             Bundle b = new Bundle();
-            b.putInt(DoorCamActivity.OPEN_BY, openByButton ? DoorCamActivity.OPEN_MANUELL : DoorCamActivity.OPEN_AUTO);
-            b.putInt(DoorCamActivity.SHOW_TYPE, showLiveCam ? DoorCamActivity.SHOW_LIVE : DoorCamActivity.SHOW_ARCHIVE);
+            b.putInt(DoorCamLiveActivity.OPEN_BY, openByButton ? DoorCamLiveActivity.OPEN_MANUELL : DoorCamLiveActivity.OPEN_AUTO);
             calIntent.putExtras(b);
             getContext().startActivity(calIntent);
         }

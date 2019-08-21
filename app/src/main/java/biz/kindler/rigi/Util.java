@@ -2,7 +2,10 @@ package biz.kindler.rigi;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -63,5 +66,28 @@ public class Util {
     public static String getBackgroundWebcamUrl( Context ctx) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
         return prefs.getString(BackgroundModel.BACKGROUND_CAMURL, "https://rigipic.ch/rigikapellekulm.jpg");
+    }
+
+    public static void showToastInUiThread( final Context ctx, final int stringRes, final int showTime) {
+
+        Handler mainThread = new Handler( Looper.getMainLooper());
+        mainThread.post( new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText( ctx, ctx.getString(stringRes), showTime).show();
+            }
+        });
+    }
+
+    public static void showToastInUiThread( final Context ctx, final String stringTxt, final int showTime) {
+
+        Handler mainThread = new Handler( Looper.getMainLooper());
+        mainThread.post( new Runnable() {
+            @Override
+            public void run() {
+                if( ctx != null)
+                    Toast.makeText( ctx, stringTxt, showTime).show();
+            }
+        });
     }
 }
