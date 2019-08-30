@@ -9,6 +9,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -91,19 +92,14 @@ public class DoorCamLiveActivity extends AppCompatActivity implements View.OnCli
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_live_cam);
 
-        android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("Haustür Kamera");
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
+        ActionBar actionBar = getSupportActionBar();
+        if( actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle("Haustür Kamera");
+            actionBar.setDisplayShowHomeEnabled(true);
+        }
 
         Bundle b = getIntent().getExtras();
         mOpenBy = b.getInt(OPEN_BY, OPEN_MANUELL);
@@ -143,13 +139,6 @@ public class DoorCamLiveActivity extends AppCompatActivity implements View.OnCli
         mStoredPicOnRingCnt = 0;
         mTimerHandler = new Handler();
         mTimerHandler.post(camRequestRunnable);
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mImageView.setImageBitmap(null);
-            }
-        }, 1000);
 
         if(mOpenBy == OPEN_AUTO) {
             startRecordPictures();

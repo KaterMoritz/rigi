@@ -58,7 +58,7 @@ public class UpdatePreferenceFragment extends BasePreferenceFragment {
             public void run() {
                 getServerVersion();
             }
-        }, 2000);
+        }, 1000);
     }
 
 
@@ -84,7 +84,10 @@ public class UpdatePreferenceFragment extends BasePreferenceFragment {
         Uri webpage = Uri.parse(SERVER_DOWNLOAD_URL);
         Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
         if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+            getActivity().finish();
+            getActivity().stopLockTask();
             startActivity(intent);
+            getActivity().finishAffinity();
         }
     }
 

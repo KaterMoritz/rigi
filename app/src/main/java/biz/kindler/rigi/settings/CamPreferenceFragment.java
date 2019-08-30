@@ -44,7 +44,7 @@ public class CamPreferenceFragment extends BasePreferenceFragment {
 
         mDoorCamPref = (EditTextPreference)findPreference(DOOR_CAM);
         mDoorCamPref.setOnPreferenceChangeListener(this);
-        String doorCamServerIP = mDoorCamPref.getSharedPreferences().getString( DOOR_CAM, "http://192.168.1.112/html/cam_pic.php");
+        String doorCamServerIP = mDoorCamPref.getSharedPreferences().getString( DOOR_CAM, "http://192.168.1.112/cam_pic.php");
         updateSummary( mDoorCamPref, doorCamServerIP);
 
         mCamRotation = (ListPreference)findPreference(CAM_ROTATION);

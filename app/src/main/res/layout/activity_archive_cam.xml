@@ -9,12 +9,6 @@
     android:background="@color/colorDeepBlack"
     tools:context="biz.kindler.rigi.modul.sonnerie.DoorCamArchiveActivity">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:navigationIcon="?attr/homeAsUpIndicator" />
-
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="fill_parent"

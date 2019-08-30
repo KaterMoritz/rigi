@@ -1,12 +1,17 @@
 package biz.kindler.rigi.modul.sonnerie;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -23,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -36,6 +42,7 @@ import java.util.TimeZone;
 import biz.kindler.rigi.R;
 import biz.kindler.rigi.Util;
 import biz.kindler.rigi.modul.system.Log;
+import biz.kindler.rigi.settings.CamPreferenceFragment;
 
 /**
  * Created by P.Kindler
@@ -45,11 +52,9 @@ import biz.kindler.rigi.modul.system.Log;
  *
  * Image Slider, see: https://www.youtube.com/watch?v=Q2FPDI99-as
  */
-public class DoorCamArchiveActivity extends AppCompatActivity implements View.OnClickListener {
+public class DoorCamArchiveActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, View.OnLongClickListener {
 
     private final static String TAG = DoorCamArchiveActivity.class.getSimpleName();
-
-    private static final float      IMAGE_ROTATION                      = 90;
 
     private ViewPager               mViewPager;
     private CustomPagerAdapter      mPagerAdapter;
@@ -62,31 +67,27 @@ public class DoorCamArchiveActivity extends AppCompatActivity implements View.On
     private String                  mImgPath;
     private int                     mSizeOfArchiveImages;  // count of files
     private int                     mSelectedScrollIdx;
+    private int                     mLastSelectedScrollIdx;
     private SimpleDateFormat        mDateTimeFormatter;
     private SimpleDateFormat        mTimeFormatter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_archive_cam);
 
-        android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("Haustür Kamera Archiv");
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
+        ActionBar actionBar = getSupportActionBar();
+        if( actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle("Haustür Kamera Archiv");
+            actionBar.setDisplayShowHomeEnabled(true);
+        }
 
         Bundle b = getIntent().getExtras();
 
         mDateTimeFormatter = new SimpleDateFormat("dd.MM.yy HH:mm");
         mDateTimeFormatter.setTimeZone(TimeZone.getTimeZone("Europe/Paris"));
-        mTimeFormatter = new SimpleDateFormat("HH:mm");
+        mTimeFormatter = new SimpleDateFormat("HH:mm:ss");
         mTimeFormatter.setTimeZone(TimeZone.getTimeZone("Europe/Paris"));
 
         mDayOfYearToday = new GregorianCalendar().get(Calendar.DAY_OF_YEAR);
@@ -96,10 +97,6 @@ public class DoorCamArchiveActivity extends AppCompatActivity implements View.On
 
         mArchiveScrollView = (HorizontalScrollView)findViewById(R.id.cam_archive_scrollview);
         mArchiveScrollView.setSmoothScrollingEnabled( true);
-      //  LinearLayout thumbImgLayout = (LinearLayout)findViewById(R.id.thumbImgLayout);
-      //  LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    //    RelativeLayout mainLayout = (RelativeLayout) findViewById(R.id.cam);
-     //   ImageView firstThumbImg = null;  // to show the first image on startup activity
 
         // Image Timestamp title
         mImgTitleTxtView = (TextView)findViewById(R.id.img_timestamp);
@@ -107,16 +104,20 @@ public class DoorCamArchiveActivity extends AppCompatActivity implements View.On
         mTimestampLayout.setVisibility( View.INVISIBLE);
         mImgPath = new File(getImgPathDir()).getAbsolutePath();
         mViewPager = (ViewPager)findViewById(R.id.viewpager);
+        mViewPager.addOnPageChangeListener( this);
 
-
-       // if(firstThumbImg != null)
-        //    onClick( firstThumbImg);
+       // deleteCamFile( "1566400384959.jpg"); // /storage/emulated/0/cam/1566400384959.jpg
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
+        loadImages();
+    }
+
+    private void loadImages() {
+        mProgressBar.setVisibility( View.VISIBLE);
 
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -141,38 +142,44 @@ public class DoorCamArchiveActivity extends AppCompatActivity implements View.On
                 mViewPager.setAdapter(mPagerAdapter);
 
                 mProgressBar.setVisibility(View.INVISIBLE);
+                mTimestampLayout.setVisibility( View.VISIBLE);
+                if( fileArr.length > 0) {
+                    selectThumb(0);
+                }
             }
-        }, 100);
+        }, 200);
     }
 
     private void initThumbImgLayout( File[] fileArr) {
         mThumbImgLayout = (LinearLayout)findViewById(R.id.thumbImgLayout);
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         RelativeLayout mainLayout = (RelativeLayout) findViewById(R.id.cam);
-        ImageView firstThumbImg = null;  // to show the first image on startup activity
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int rotation = Integer.parseInt(prefs.getString(CamPreferenceFragment.CAM_ROTATION, "0"));
 
-        int idx=0;
-        for (File file: fileArr) {
-            String fileAbsName = file.getAbsolutePath();
-            String filename = file.getName();
+        for(int cnt=0; cnt <fileArr.length; cnt++) {
+            File currFile = fileArr[cnt];
+            String fileAbsName = currFile.getAbsolutePath();
+            String filename = currFile.getName();
             String fileTimestamp = filename.substring(0, filename.length() -4); // remove .jpg from filename
 
             Bitmap bmp = BitmapFactory.decodeFile(fileAbsName);
+            Bitmap bmpThumb = null;
             if( bmp != null) {
-                Bitmap bmpThumb = Bitmap.createScaledBitmap(bmp, 100, 100, false);
-
-                RelativeLayout imgViewLayout = (RelativeLayout) inflater.inflate(R.layout.thumb_view, mainLayout, false);
-                ImageView imgView = imgViewLayout.findViewById(R.id.thumb_img);
-                imgView.setTag(idx + ":" + fileTimestamp);
-                imgView.setImageBitmap(bmpThumb);
-                imgView.setRotation(IMAGE_ROTATION);
-                imgView.setOnClickListener(this);
-                mThumbImgLayout.addView(imgViewLayout);
-
-                if( firstThumbImg == null)
-                    firstThumbImg = imgView;
+                bmpThumb = Bitmap.createScaledBitmap(bmp, 100, 100, false);
             }
-            idx++;
+            RelativeLayout imgViewLayout = (RelativeLayout) inflater.inflate(R.layout.thumb_view, mainLayout, false);
+            imgViewLayout.setTag(cnt + ":" + fileTimestamp);
+
+            ImageView imgView = imgViewLayout.findViewById(R.id.thumb_img);
+            imgView.setTag(cnt + ":" + fileTimestamp);
+            if( bmpThumb != null) {
+                imgView.setImageBitmap(bmpThumb);
+            }
+            imgView.setRotation(rotation);
+            imgView.setOnClickListener(this);
+            imgView.setOnLongClickListener(this);
+            mThumbImgLayout.addView(imgViewLayout);
         }
     }
 
@@ -198,13 +205,6 @@ public class DoorCamArchiveActivity extends AppCompatActivity implements View.On
             return mDateTimeFormatter.format(date);
     }
 
-    private void resetThumbImgSelection() {
-      //  LinearLayout thumbImgLayout = (LinearLayout)findViewById(R.id.thumbImgLayout);
-        int childCnt = mThumbImgLayout.getChildCount();
-        for(int cnt=0; cnt <childCnt; cnt++)
-            mThumbImgLayout.getChildAt(cnt).setBackgroundResource( R.color.colorDeepBlack);
-    }
-
     @Override
     public void onClick(View v) {
         Object tag = v.getTag();
@@ -212,60 +212,101 @@ public class DoorCamArchiveActivity extends AppCompatActivity implements View.On
         if( tag != null) { // on thumb img clicked
             String[] tagData = ((String)tag).split( ":");
             mSelectedScrollIdx = Integer.parseInt( tagData[0]);
-            Log.d(TAG, "Usery clicked on thumb img: [scrollIdx: " + mSelectedScrollIdx + ", fileid: " + tagData[1] + "]");
-            String fileAbs = null;
-            if( tagData.length == 2)
-                fileAbs = getImgPathDir() + File.separator + tagData[1] + ".jpg";
 
-            final Bitmap bmp = BitmapFactory.decodeFile(fileAbs);
+            Log.d(TAG, "Usery clicked on thumb img: [scrollIdx: " + mSelectedScrollIdx + ", fileid: " + tagData[1] + "]");
 
             new Handler( Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    // showMainCamImg( bmp);
                     mViewPager.setCurrentItem(mSelectedScrollIdx, true);
                 }
             });
 
-            mTimestampLayout.setVisibility( View.VISIBLE);
-            mImgTitleTxtView.setText( getReadableTimestamp( new Date( Long.parseLong( tagData[1]))));
+            selectThumb( mSelectedScrollIdx);
+        }
+    }
 
-            resetThumbImgSelection();
-            RelativeLayout rl = (RelativeLayout)v.getParent();
-            rl.setBackgroundResource( R.color.colorYellow);
+    @Override
+    public boolean onLongClick(View v) {
+        Object tag = v.getTag();
+
+        if( tag != null) { // on thumb img clicked
+            final String[] tagData = ((String) tag).split(":");
+
+            AlertDialog.Builder adb = new AlertDialog.Builder(this);
+            adb.setTitle("Bild (" + getReadableTimestamp( new Date( Long.parseLong( tagData[1]))) + ") löschen?");
+            adb.setIcon(android.R.drawable.ic_dialog_alert);
+            adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            boolean status = deleteCamFile( tagData[1] + ".jpg");
+                            Util.showToastInUiThread( getCtx(), status ? "gelöscht" : "fehler", Toast.LENGTH_LONG);
+                            finish();
+                            startActivity(getIntent());
+                        }
+                    }, 200);
+                }
+            });
+            adb.setCancelable(true);
+            adb.show();
         }
 
+        return false;
+    }
+
+    private Context getCtx() {
+        return this;
     }
 
     private void selectThumb( int arrIdx) {
 
-
         int childCnt = mThumbImgLayout.getChildCount();
-        for(int cnt=0; cnt <childCnt; cnt++)
-            mThumbImgLayout.getChildAt(cnt).setBackgroundResource( R.color.colorDeepBlack);
+        for(int cnt=0; cnt <childCnt; cnt++) {
+            View view = mThumbImgLayout.getChildAt(cnt);
+            view.setBackgroundResource( cnt == arrIdx ? R.color.colorYellow : R.color.colorDeepBlack);
+            if( cnt == arrIdx) {
+                String[] tagData = ((String)view.getTag()).split( ":");
+                mImgTitleTxtView.setText( getReadableTimestamp( new Date( Long.parseLong( tagData[1]))));
 
-      //  Log.d(TAG, "select thumb, viewId: " + mThumbImgLayout.getChildAt(arrIdx).getId());
-        Log.d(TAG, "select thumb, tag: " + mThumbImgLayout.getChildAt(arrIdx).getTag());
-
-       // resetThumbImgSelection();
-
-
-     //   mThumbImgLayout.getChildAt(arrIdx).setBackgroundResource( R.color.colorYellow);
+                final Rect scrollBounds = new Rect();
+                mArchiveScrollView.getHitRect(scrollBounds);
+                if (view.getLocalVisibleRect(scrollBounds)) {
+                    // imageView is within the visible window
+                    Log.d(TAG, "TAG:" + view.getTag() + " is visible");
+                } else {
+                    // imageView is not within the visible window
+                    Log.d(TAG, "TAG:" + view.getTag() + " is NOT visible");
+                    mArchiveScrollView.pageScroll( arrIdx > mLastSelectedScrollIdx ? View.FOCUS_RIGHT : View.FOCUS_LEFT);
+                }
+            }
+        }
+        mLastSelectedScrollIdx = arrIdx;
     }
 
-    private void test() {
+    @Override
+    public void onPageScrolled(int i, float v, int i1) {
+     //  Log.d(TAG, "onPageScrolled: i:" + i + ",v:" + v + ",i1:" + i1);
+    }
 
-        int childCnt = mThumbImgLayout.getChildCount();
-        for(int cnt=0; cnt <childCnt; cnt++)
-            Log.d(TAG, "thumbTag:" + mThumbImgLayout.getChildAt(cnt).getTag());
+    @Override
+    public void onPageSelected(int i) {
+        Log.d(TAG, "onPageSelected: i:" + i);
+        selectThumb( i);
+    }
 
-        //  Log.d(TAG, "select thumb, viewId: " + mThumbImgLayout.getChildAt(arrIdx).getId());
-       // Log.d(TAG, "select thumb, tag: " + mThumbImgLayout.getChildAt(arrIdx).getTag());
+    @Override
+    public void onPageScrollStateChanged(int i) {
+    //    Log.d(TAG, "onPageScrollStateChanged: i:" + i);
+    }
 
-        // resetThumbImgSelection();
-
-
-        //   mThumbImgLayout.getChildAt(arrIdx).setBackgroundResource( R.color.colorYellow);
+    private boolean deleteCamFile( String filenameAndSuffix) {
+        String path = getImgPathDir() + File.separator + filenameAndSuffix;
+        File file = new File( path);
+        boolean status = file.delete();
+        Log.d(TAG, "deleteCamFile: " + path + " status: " + status);
+        return status;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -273,7 +314,6 @@ public class DoorCamArchiveActivity extends AppCompatActivity implements View.On
     private class CustomPagerAdapter extends PagerAdapter {
 
         private Context mCtx;
-       // private int[] mImgIds = new int[] {R.drawable.hausrigi2, R.drawable.hausrigi, R.drawable.background_settings1};
         private File[] mFileArr;
 
         public CustomPagerAdapter( Context ctx, File[] fileArr) {
@@ -294,6 +334,7 @@ public class DoorCamArchiveActivity extends AppCompatActivity implements View.On
         @Override
         public Object instantiateItem(@NonNull ViewGroup collection, int position) {
             ImageView imgView = new ImageView(mCtx);
+            imgView.setTag( position);
             imgView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             String fileAbsName = mFileArr[position].getAbsolutePath();
             Log.d(TAG, "filename: " + fileAbsName + ", position: " + position);
