@@ -9,11 +9,13 @@ import android.text.TextUtils;
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Set;
 
 import biz.kindler.rigi.modul.system.Log;
 import biz.kindler.rigi.settings.LogPreferenceFragment;
+import biz.kindler.rigi.settings.UpdatePreferenceFragment;
 
 import static org.acra.ReportField.ANDROID_VERSION;
 import static org.acra.ReportField.APPLICATION_LOG;
@@ -50,6 +52,11 @@ public class RigiApplication extends Application {
         mCtx = getApplicationContext();
 
         Log.d(TAG, "Rigi app started");
+
+        SharedPreferences.Editor prefsEditor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+        prefsEditor.putString( UpdatePreferenceFragment.APP_START, String.valueOf(new Date().getTime()));
+        prefsEditor.commit();
+
 /*
         try {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();

@@ -21,16 +21,6 @@
         android:title="openHAB Server" />
 
     <EditTextPreference
-        android:capitalize="words"
-        android:defaultValue="http://192.168.1.112/html/cam_pic.php"
-        android:inputType="textUri"
-        android:key="door_cam"
-        android:maxLines="1"
-        android:selectAllOnFocus="true"
-        android:singleLine="true"
-        android:title="Tür Kamera" />
-
-    <EditTextPreference
         android:defaultValue="5"
         android:inputType="numberDecimal"
         android:key="display-off-after-minutes"

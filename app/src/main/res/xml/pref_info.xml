@@ -14,6 +14,11 @@
         android:summary="Patrick Kindler CH [www.kindler.biz]"/>
 
     <Preference
+        android:title="App gestartet"
+        android:key="appstart"
+        android:summary="-"/>
+
+    <Preference
         android:title="Version Lokal"
         android:key="local-version"
         android:summary="-"/>
