@@ -1,5 +1,6 @@
 package biz.kindler.rigi.settings;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
@@ -9,11 +10,23 @@ import android.preference.SwitchPreference;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Iterator;
 
 import biz.kindler.rigi.R;
 import biz.kindler.rigi.Util;
 import biz.kindler.rigi.modul.background.BackgroundModel;
 import biz.kindler.rigi.modul.entree.EntreeModel;
+import biz.kindler.rigi.modul.system.Log;
 
 /**
  * Created by patrick kindler (katermoritz100@gmail.com) on 06.06.17.
@@ -25,13 +38,17 @@ public class GeneralPreferenceFragment extends BasePreferenceFragment {
 
     public static final String ACTION_BACKGROUND_MODE_SETTINGS_CHANGED          = "background-mode-settings-changed";
 
+    private static final String SERVER_BASE_CONFIG_URL_JSON                     = "http://www.kindler.biz/rigi/";
+
     public static final String PREFS_DAWN_LEVEL         = "pref_dawn_level";
     public static final String PREFS_TWILIGHT_LEVEL     = "pref_twilight_level";
 
-    public static final String OPENHAB_SERVER          = "openhab_server";
+    public static final String CONFIG_FROM_SERVER       = "config_from_server";
+    public static final String OPENHAB_SERVER           = "openhab_server";
     private static final String SCREENSAVER_ON          = "screensaver-on";
     private static final String SCREENSAVER_OFF         = "screensaver-off";
 
+    private EditTextPreference  mConfigFromServerPref;
     private EditTextPreference  mOpenHabServerPref;
     private EditTextPreference  mDisplayOffPref;
     private EditTextPreference  mDawnLevelPref;
@@ -50,6 +67,11 @@ public class GeneralPreferenceFragment extends BasePreferenceFragment {
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
       //  getActivity().requestWindowFeature(Window.FEATURE_NO_TITLE);
         getActivity().setTitle("");
+
+        mConfigFromServerPref = (EditTextPreference)findPreference(CONFIG_FROM_SERVER);
+        mConfigFromServerPref.setOnPreferenceChangeListener(this);
+        String configFromServerPath = mConfigFromServerPref.getSharedPreferences().getString( CONFIG_FROM_SERVER, "");
+        updateSummary( mConfigFromServerPref, configFromServerPath);
 
         mOpenHabServerPref = (EditTextPreference)findPreference(OPENHAB_SERVER);
         mOpenHabServerPref.setOnPreferenceChangeListener(this);
@@ -100,7 +122,11 @@ public class GeneralPreferenceFragment extends BasePreferenceFragment {
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        if ( preference.getKey().equals( OPENHAB_SERVER))
+        if ( preference.getKey().equals( CONFIG_FROM_SERVER)) {
+            updateSummary(mConfigFromServerPref, (String) newValue);
+            loadConfigFromServer( mConfigFromServerPref.getSharedPreferences().getString( CONFIG_FROM_SERVER, ""));
+        }
+        else if ( preference.getKey().equals( OPENHAB_SERVER))
             updateSummary(mOpenHabServerPref, (String)newValue);
         else if ( preference.getKey().equals( EntreeModel.PREFS_DISPLAY_OFF_AFTER_MINUTES))
             updateSummary(mDisplayOffPref, (String)newValue, R.string.pref_display_off);
@@ -121,5 +147,45 @@ public class GeneralPreferenceFragment extends BasePreferenceFragment {
     @Override
     public boolean onPreferenceClick(Preference preference) {
         return true;
+    }
+
+    private void loadConfigFromServer(final String path) {
+        Util.showToastInUiThread( getContext(), "load from: " + path, Toast.LENGTH_LONG);
+        new Thread(new Runnable(){
+            public void run(){
+                try {
+                    URL url = new URL(SERVER_BASE_CONFIG_URL_JSON + path + ".json"); // the config file
+                    HttpURLConnection conn=(HttpURLConnection) url.openConnection();
+                    conn.setConnectTimeout(60000); // timing out in a minute
+                    BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+                    String str;
+                    StringBuffer buff= new StringBuffer();
+                    while ((str = in.readLine()) != null) {
+                        buff.append(str);
+                    }
+                    in.close();
+
+                    JSONObject dataArr = new JSONObject(buff.toString());
+
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+                    SharedPreferences.Editor prefsEditor = prefs.edit();
+
+                    Iterator iterator = dataArr.keys();
+                    while (iterator.hasNext()) {
+                        String key = (String) iterator.next();
+                        String value = dataArr.getString( key);
+                        Log.d(TAG, "key:" + key + ",val:" + value);
+                        prefsEditor.putString( key, value);
+                    }
+                    prefsEditor.apply();
+                    Util.showToastInUiThread(getContext(), dataArr.length() + " Einstellungen geladen", Toast.LENGTH_LONG);
+                } catch (FileNotFoundException e) {
+                    Util.showToastInUiThread(getContext(), e.getMessage(), Toast.LENGTH_LONG);
+                } catch (Exception e) {
+                    Util.showToastInUiThread(getContext(), e.getMessage(), Toast.LENGTH_LONG);
+                }
+            }
+        }).start();
     }
 }

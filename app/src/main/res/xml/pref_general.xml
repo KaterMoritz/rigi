@@ -11,6 +11,13 @@
         android:textColor="@android:color/white">
 
     <EditTextPreference
+        android:defaultValue="[pfad]"
+        android:inputType="text"
+        android:key="config_from_server"
+        android:title="Lade Konfiguration vom Server"
+        android:summary="@string/pref_display_off"/>
+
+    <EditTextPreference
         android:capitalize="words"
         android:defaultValue="http://192.168.1.131:8080"
         android:inputType="textUri"
