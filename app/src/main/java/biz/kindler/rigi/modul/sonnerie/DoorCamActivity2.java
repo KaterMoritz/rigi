@@ -14,8 +14,8 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -34,7 +34,6 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DecimalFormat;
@@ -48,12 +47,10 @@ import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import biz.kindler.rigi.MainActivity;
 import biz.kindler.rigi.R;
 import biz.kindler.rigi.Util;
 import biz.kindler.rigi.modul.system.Log;
 import biz.kindler.rigi.settings.CamPreferenceFragment;
-import biz.kindler.rigi.settings.GeneralPreferenceFragment;
 
 /**
  * Created by patrick kindler (katermoritz100@gmail.com) on 22.12.17.

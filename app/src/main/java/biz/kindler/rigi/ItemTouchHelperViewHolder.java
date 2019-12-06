@@ -4,7 +4,7 @@ package biz.kindler.rigi;
  * Created by patrick kindler (katermoritz100@gmail.com) on 30.10.16.
  */
 
-import android.support.v7.widget.helper.ItemTouchHelper;
+import androidx.recyclerview.widget.ItemTouchHelper;
 
 public interface ItemTouchHelperViewHolder {
 

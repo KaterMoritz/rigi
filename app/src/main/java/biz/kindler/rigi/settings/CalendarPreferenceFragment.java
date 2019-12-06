@@ -14,7 +14,7 @@ import android.os.Handler;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.SwitchPreference;
-import android.support.v4.app.ActivityCompat;
+import androidx.core.app.ActivityCompat;
 import android.view.WindowManager;
 
 import java.lang.reflect.Method;

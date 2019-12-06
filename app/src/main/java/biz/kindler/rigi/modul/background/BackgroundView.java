@@ -5,9 +5,9 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.DrawerLayout;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -24,7 +24,7 @@ public class BackgroundView implements View.OnTouchListener {
     private BackgroundModel mModel;
     private boolean         mAllowClick;
 
-    private android.support.v7.widget.RecyclerView  mListView;
+    private androidx.recyclerview.widget.RecyclerView  mListView;
 
     public BackgroundView( Context ctx) {
         mDrawer = (DrawerLayout)((Activity)ctx).findViewById(R.id.drawer_layout);

@@ -26,18 +26,18 @@ import android.os.Looper;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
+import com.google.android.material.navigation.NavigationView;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageView                               mMotionImageView;
     private MyBroadcastReceiver                     mMyBroadcastReceiver;
     private ArrayList                               mAllListDataArr;
-    private android.support.v7.app.MediaRouteButton mMediaRouteButton;
+    private androidx.mediarouter.app.MediaRouteButton mMediaRouteButton;
 
     private static final String         Battery_PLUGGED_ANY = Integer.toString(BatteryManager.BATTERY_PLUGGED_AC | BatteryManager.BATTERY_PLUGGED_USB | BatteryManager.BATTERY_PLUGGED_WIRELESS);
     private static final String         DONT_STAY_ON = "0";
@@ -353,7 +353,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
        // verifyPermissions(this);
 
 
-        mMediaRouteButton = (android.support.v7.app.MediaRouteButton)findViewById(R.id.media_route_button);
+        mMediaRouteButton = (androidx.mediarouter.app.MediaRouteButton)findViewById(R.id.media_route_button);
         CastButtonFactory.setUpMediaRouteButton(this, mMediaRouteButton);
         mMediaRouteButton.setVisibility(View.INVISIBLE);
     }
@@ -640,7 +640,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //Define sound URI
         Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        android.support.v4.app.NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(ctx)
+        androidx.core.app.NotificationCompat.Builder mBuilder = new androidx.core.app.NotificationCompat.Builder(ctx)
                 .setSmallIcon(R.drawable.icon_02_09)
                 .setContentTitle(title)
                 .setContentText(title)
