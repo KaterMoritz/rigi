@@ -114,16 +114,21 @@ public class BackgroundModel extends BroadcastReceiver {
                 Matrix matrix = new Matrix();
                 Bitmap resizedBitmap = null;
 
-                switch (mWebcamPartOfImage) {
-                    case LEFT_PART_OF_IMAGE:
-                        resizedBitmap = Bitmap.createBitmap(bmpImg, 0, 0, 400, 600, matrix, true);
-                        break;
-                    case CENTER_PART_OF_IMAGE:
-                        resizedBitmap = Bitmap.createBitmap(bmpImg, 200, 0, 400, 600, matrix, true);
-                        break;
-                    case RIGHT_PART_OF_IMAGE:
-                        resizedBitmap = Bitmap.createBitmap(bmpImg, 400, 0, 400, 600, matrix, true);
-                        break;
+                try {
+                    switch (mWebcamPartOfImage) {
+                            case LEFT_PART_OF_IMAGE:
+                                resizedBitmap = Bitmap.createBitmap(bmpImg, 0, 0, 400, 600, matrix, true);
+                                break;
+                            case CENTER_PART_OF_IMAGE:
+                                resizedBitmap = Bitmap.createBitmap(bmpImg, 200, 0, 400, 600, matrix, true);
+                                break;
+                            case RIGHT_PART_OF_IMAGE:
+                                resizedBitmap = Bitmap.createBitmap(bmpImg, 400, 0, 400, 600, matrix, true);
+                                break;
+                    }
+                } catch(Exception ex) {
+                    Log.w(TAG, ex.getMessage());
+                    resizedBitmap = bmpImg;
                 }
 
                 mWebcamPartOfImage++;
