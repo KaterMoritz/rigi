@@ -51,12 +51,52 @@
             android:foreground="@drawable/chromecasticon"/>
 
         <ImageView
-            android:id="@+id/motion_image"
+            android:id="@+id/lock_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center"
+            android:layout_marginBottom="30dp"
+            android:background="@drawable/door_state_open"
+            android:visibility="visible"/>
+
+        <ProgressBar
+            android:id="@+id/lock_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center"
+            android:layout_marginBottom="52dp"
+            android:indeterminateTint="@color/gray_btn_bg_pressed_color"
+            android:visibility="invisible" />
+
+        <ImageView
+            android:id="@+id/lock_n_go_image"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="bottom|end"
+            android:layout_marginRight="240dp"
+            android:layout_marginBottom="39dp"
+            android:background="@drawable/lockngo"
+            android:visibility="visible"/>
+
+        <ProgressBar
+            android:id="@+id/lock_n_go_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginRight="255dp"
+            android:layout_marginBottom="52dp"
+            android:indeterminateTint="@color/gray_btn_bg_pressed_color"
+            android:visibility="invisible" />
+
+        <ImageView
+            android:id="@+id/motion_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
             android:background="@drawable/motion2"
-            android:layout_margin="@dimen/fab_margin"
+            android:layout_marginRight="130dp"
+            android:layout_marginBottom="16dp"
+            android:layout_alignParentRight="true"
             android:visibility="visible"/>
 
         <ImageButton

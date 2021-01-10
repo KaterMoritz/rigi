@@ -46,11 +46,14 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.cast.framework.CastButtonFactory;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import biz.kindler.rigi.modul.background.BackgroundModel;
 import biz.kindler.rigi.modul.calendar.CalendarModel;
@@ -62,6 +65,7 @@ import biz.kindler.rigi.modul.forecourt.ForecourtModel;
 import biz.kindler.rigi.modul.garage.GarageModel;
 import biz.kindler.rigi.modul.garden.GardenModel;
 import biz.kindler.rigi.modul.letterbox.LetterboxModel;
+import biz.kindler.rigi.modul.lock.LockModel;
 import biz.kindler.rigi.modul.misc.MiscModel;
 import biz.kindler.rigi.modul.shutter.ShutterModel;
 import biz.kindler.rigi.modul.sonnerie.SonnerieModel;
@@ -112,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static final int         WATERING = 9;
     public static final int         SONNERIE = 10;
     public static final int         SOUND = 11;
+    public static final int         LOCK = 12;
 
 
     public static final int         TEXT_ITEM = 0;
@@ -124,9 +129,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // buttons on Main Panel TAG
     public static final String      MENU = "menu";
     public static final String      CAM  = "cam";
+    public static final String      LOCK_AND_GO  = "lockandgo";
 
     private static final String     MOTION_SENSOR_GARAGE = "Motion_Sensor_Garage";
     private static final String     MOTION_SENSOR_GARDEN = "Motion_Sensor_Garden";
+   // public static final String      LOCK_STATE           = "Lock_State";
 
     private RecyclerView                            mMainListView;
     private MainListAdapter                         mMainListAdapter;
@@ -139,6 +146,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DevicePolicyManager                     mDevicePolicyManager;
     private PackageManager                          mPackageManager;
     private ImageView                               mMotionImageView;
+    private ImageView                               mLockImageView;
+    private ImageView                               mLockAndGoImageView;
+    private ProgressBar                             mLockProgress;
+    private ProgressBar                             mLockAndGoProgress;
     private MyBroadcastReceiver                     mMyBroadcastReceiver;
     private ArrayList                               mAllListDataArr;
     private androidx.mediarouter.app.MediaRouteButton mMediaRouteButton;
@@ -223,6 +234,46 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mMotionImageView.setBackgroundResource( R.drawable.motion_garage);
         mMotionImageView.setVisibility( View.INVISIBLE);
 
+        mLockImageView = (ImageView) findViewById( R.id.lock_image);
+        mLockImageView.setBackgroundResource( R.drawable.door_state_unknown);
+        mLockImageView.setVisibility( View.INVISIBLE);
+        mLockImageView.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Object tagObj = v.getTag();
+                if (tagObj != null && tagObj instanceof String) {
+                    int currLockState = Integer.parseInt(tagObj.toString().trim().split("#", 2)[0]);
+                    Intent bc = new Intent();
+                    bc.setAction(LockModel.ACTION_LOCK);
+                    if(currLockState == LockModel.LOCK_LOCKED)
+                        bc.putExtra("lockActionCmd", LockModel.CMD_UNLOCK);
+                    else if(currLockState == LockModel.LOCK_UNLOCKED)
+                        bc.putExtra("lockActionCmd", LockModel.CMD_LOCK);
+                    getContext().sendBroadcast(bc);
+                    mLockProgress.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        mLockProgress = (ProgressBar)findViewById( R.id.lock_progress);
+
+        mLockAndGoImageView = (ImageView) findViewById( R.id.lock_n_go_image);
+        mLockAndGoImageView.setTag(LOCK_AND_GO);
+        mLockAndGoImageView.setBackgroundResource( R.drawable.lockngo);
+        mLockAndGoImageView.setVisibility( View.INVISIBLE);
+        mLockAndGoImageView.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent bc = new Intent();
+                bc.setAction(LockModel.ACTION_LOCK);
+                bc.putExtra("lockActionCmd", LockModel.CMD_LOCK_N_GO); // LockModel.CMD_LOCK_N_GO_WITH_UNLATCH);
+                getContext().sendBroadcast(bc);
+                mLockAndGoProgress.setVisibility(View.VISIBLE);
+            }
+        });
+
+        mLockAndGoProgress = (ProgressBar)findViewById( R.id.lock_n_go_progress);
+
         ImageButton camBtn = (ImageButton) findViewById(R.id.cam_button);
         camBtn.setTag(CAM);
         camBtn.setOnClickListener(this);
@@ -280,6 +331,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         SonnerieModel sonnerieModel = new SonnerieModel(this);
         // Sound
         SoundModel3 soundModel = new SoundModel3(this);
+        // Lock
+        LockModel lockModel = new LockModel(this);
 
 
         mAllListDataArr = new ArrayList<>();
@@ -338,6 +391,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         intentFilter.addAction(MainListAdapter.ACTION_CHANGED_IN_LIST_MODUL + MainActivity.SOUND);
         intentFilter.addAction(MOTION_SENSOR_GARAGE);
         intentFilter.addAction(MOTION_SENSOR_GARDEN);
+        intentFilter.addAction(LockModel.ACTION_LOCK);
         intentFilter.addAction(LogPreferenceFragment.SYSTEMSERVICE);
         registerReceiver(mMyBroadcastReceiver, intentFilter);
 
@@ -625,6 +679,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mDrawer.openDrawer(Gravity.LEFT);
         else if( view.getTag() != null && view.getTag().equals(CAM))
             sendButtonKlickedEvent( SONNERIE, 1);
+        /*
+        else if( view.getTag() != null && view.getTag().equals(LOCK_AND_GO)) {
+            sendButtonKlickedEvent(LOCK, 3);
+            mLockAndGoProgress.setVisibility(View.VISIBLE);
+        } */
     }
 
     private void sendButtonKlickedEvent( int modulId, int buttonId) {
@@ -742,6 +801,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private class MyBroadcastReceiver extends BroadcastReceiver {
+        private Boolean mLockNgoActive = false;
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -754,6 +814,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 handleMotionSensorGarage(value);
             else if (action.equals(MOTION_SENSOR_GARDEN))
                 handleMotionSensorGarden(value);
+            else if (action.equals(LockModel.ACTION_LOCK))
+                handleLockAction(intent.getExtras());
+          //  else if (action.equals(LOCK_AND_GO))
+         //       handleLockNgo(intent.getIntExtra("state", -1), value);
             else if( action.equals( LogPreferenceFragment.SYSTEMSERVICE))
                 handleSystemServiceCmd( intent.getStringExtra( SystemModel.KEY_MESSAGE));
             else if( action.startsWith(MainListAdapter.ACTION_CHANGED_IN_LIST_MODUL + MainActivity.SOUND))
@@ -789,6 +853,131 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     mMotionImageView.setVisibility(View.INVISIBLE);
                 }
             }
+        }
+
+        private void handleLockAction(Bundle extras) {
+
+          //  mLockProgress.setVisibility(View.INVISIBLE);
+
+            if( extras.containsKey("bridgeConnected")) {
+                mLockAndGoImageView.setVisibility( extras.getBoolean( "bridgeConnected", false) ? View.VISIBLE : View.INVISIBLE);
+                Toast.makeText(getApplicationContext(),  extras.getString("info"), Toast.LENGTH_LONG).show();
+            }
+
+            if( extras.containsKey("lockActionId")) {
+                int lockActionId = extras.getInt("lockActionId", -1);
+                if( lockActionId == LockModel.CMD_UNLOCK || lockActionId == LockModel.CMD_LOCK) {
+                    mLockProgress.setVisibility(View.INVISIBLE);
+                } else if( lockActionId == LockModel.CMD_LOCK_N_GO || lockActionId == LockModel.CMD_LOCK_N_GO_WITH_UNLATCH) {
+                    mLockAndGoProgress.setVisibility(View.INVISIBLE);
+                    boolean activated = extras.getBoolean("success", false);
+                    String notiTxt =  activated ? "Lock and go aktiviert: 20 Sekunden verbleiben..." : extras.getString("failure", "unknown error");
+                    Toast.makeText(getApplicationContext(), notiTxt, Toast.LENGTH_LONG).show();
+                    if( activated) {
+                        blinkLockNgoImage(true);
+                    }
+                }
+            }
+
+            if( extras.containsKey("someoneMoving")) {
+                mLockImageView.setVisibility(extras.getBoolean("someoneMoving") ? View.VISIBLE : View.INVISIBLE);
+            }
+
+            if( extras.containsKey("success")) {
+                if( ! extras.getBoolean("success")) {
+                    mLockImageView.setBackgroundResource(R.drawable.door_state_unknown);
+                    if( extras.getBoolean("showFailure", false)) {
+                        Toast.makeText(getApplicationContext(), extras.getString("shortText"), Toast.LENGTH_LONG).show();
+                    }
+                    if( extras.getBoolean("hideIcon", false)) {
+                        mLockImageView.setVisibility(View.INVISIBLE);
+                    }
+                }
+            }
+
+            if( extras.containsKey("lockState")) {
+                int lockState = extras.getInt("lockState");
+                String lockStateText = extras.getString("lockStateText");
+                int doorState = extras.getInt("doorState");
+                String doorStateText = extras.getString("doorStateText");
+             //   boolean someoneMoving = extras.getBoolean("someoneMoving");
+
+              //  mLockImageView.setVisibility(someoneMoving ? View.VISIBLE : View.INVISIBLE);
+
+                // door is open
+                if( lockState == LockModel.LOCK_UNLOCKED && doorState == LockModel.DOOR_OPENED) {
+                    mLockImageView.setBackgroundResource( R.drawable.door_state_open);
+                    mLockImageView.setTag(LockModel.LOCK_UNLOCKED + "#" + lockStateText); // workaround when door state is wrong
+                } else {
+                    if( mLockImageView.getTag() != null && ! mLockImageView.getTag().toString().equals(lockState + "#" + lockStateText)) // hide progress when lock state changed
+                        mLockProgress.setVisibility(View.INVISIBLE);
+
+                    mLockImageView.setTag(lockState + "#" + lockStateText);
+
+                    if( lockState == LockModel.LOCK_UNLOCKED || lockState == LockModel.LOCK_UNLOCKING || lockState == LockModel.LOCK_UNLOCKED_LOCKNGO || lockState == LockModel.LOCK_UNLATCHED || lockState == LockModel.LOCK_UNLATCHING) {
+                        mLockImageView.setBackgroundResource( R.drawable.door_state_unlocked);
+                    } else if( lockState == LockModel.LOCK_LOCKED || lockState == LockModel.LOCK_LOCKING) {
+                        mLockImageView.setBackgroundResource( R.drawable.door_state_locked);
+                    } else if( lockState > -1) {
+                        mLockImageView.setBackgroundResource( R.drawable.door_state_unknown);
+                        Toast.makeText(getApplicationContext(), lockStateText + ", " + doorStateText, Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+        }
+
+        private void handleLockNgo(Bundle extras) {
+           /* mLockAndGoProgress.setVisibility(View.INVISIBLE);
+            switch (value) {
+                case 0 : mLockAndGoImageView.setVisibility( View.INVISIBLE); return;
+                case 1 : mLockAndGoImageView.setVisibility( View.VISIBLE); return;
+                case 2 : {
+                    mLockAndGoImageView.setBackgroundResource(R.drawable.lockngo);
+                    mLockAndGoImageView.setVisibility( View.VISIBLE);
+                } return;
+                case 3 : {
+                    blinkLockNgoImage(true);
+                    Toast.makeText(getApplicationContext(), "Lock and go aktiv: 15 Sekunden", Toast.LENGTH_LONG).show();
+                } return; */
+/*
+            if(value == 1) {
+                // start blinking
+                mLockAndGoImageView.setBackgroundResource(R.drawable.lockngo3_active);
+                for(int cnt=0; cnt<10; cnt++) {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mLockAndGoImageView.setBackgroundResource(R.drawable.lockngo3);
+                        }
+                    }, 10000);
+                }
+            } */
+        }
+
+        private void blinkLockNgoImage( boolean status) {
+
+            if( ! mLockNgoActive) {
+                Timer blinkLockNgoTimer = new Timer();
+                mLockAndGoImageView.setVisibility( View.VISIBLE);
+                blinkLockNgoTimer.schedule( new TimerTask() {
+                    int cnt = 0;
+                    public void run() {
+                        try {
+                            mLockAndGoImageView.setBackgroundResource(cnt % 2 == 0 ? R.drawable.lockngo_toggle1 : R.drawable.lockngo_toggle2);
+                            cnt++;
+                            if(cnt >= 40) {
+                                mLockAndGoImageView.setBackgroundResource(R.drawable.lockngo);
+                                mLockNgoActive = false;
+                                cancel();
+                            }
+                        } catch (Exception ex) {
+                            System.out.println("error running thread " + ex.getMessage());
+                            mLockNgoActive = false;
+                        }
+                    }
+                }, 0,500);
+            }
+            mLockNgoActive = status;
         }
 
         private void handleSystemServiceCmd( String cmd) {

@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Rigi.iml" filepath="$PROJECT_DIR$/Rigi.iml" group="Rigi" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="Rigi/app" />
+      <module fileurl="file://$PROJECT_DIR$/Rigi.iml" filepath="$PROJECT_DIR$/Rigi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Rigi.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Rigi.app.iml" />
     </modules>
   </component>
 </project>
