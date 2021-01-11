@@ -35,7 +35,7 @@ android {
       //  applicationId "biz.kindler.rigi.officebuild"
         minSdkVersion 27
         versionCode 1
-        versionName "2.5.0"
+        versionName "2.6.0"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
         setProperty("archivesBaseName", "rigi")
@@ -111,6 +111,7 @@ dependencies {
     implementation "androidx.coordinatorlayout:coordinatorlayout:1.1.0"
     implementation "androidx.core:core:1.1.0"
     implementation "androidx.core:core-ktx:1.1.0"
+    implementation "com.airbnb.android:lottie:3.6.0"
 }
 
 

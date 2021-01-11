@@ -99,10 +99,8 @@ public class LockModel extends BroadcastReceiver {
 
         mCtx.registerReceiver(this, intentFilter);
 
-
-        // TEST ONLY
-       // mSomeoneMoving = true;
-       // requestLockStateWithDelay(15000);
+        mSomeoneMoving = true;
+        requestLockStateWithDelay(15000);
     }
 
 
@@ -214,8 +212,8 @@ public class LockModel extends BroadcastReceiver {
 
     private void requestLockStateWithDelay(int delayMs) {
         mLockStateCnt++;
-        if( mLockStateCnt > 40) {
-            System.out.println( "requestLockState more than 40 times without a moving off event: -> set mSomeoneMoving = false ");
+        if( mLockStateCnt > 400) {
+            System.out.println( "requestLockState more than 400 times without a moving off event: -> set mSomeoneMoving = false ");
             mSomeoneMoving = false;
         }
         new Handler().postDelayed(new Runnable() {
@@ -372,6 +370,7 @@ public class LockModel extends BroadcastReceiver {
                     bc.putExtra( "doorState", lockStateObj.getInt("doorsensorState"));
                     bc.putExtra( "doorStateText", lockStateObj.getString("doorsensorStateName"));
                     bc.putExtra( "someoneMoving", mSomeoneMoving);
+                    bc.putExtra( "lockStateCnt", mLockStateCnt); // just as logging info
                     mCtx.sendBroadcast(bc);
                 }
             } catch(Exception ex) {

@@ -26,6 +26,8 @@ import android.os.Looper;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.material.navigation.NavigationView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
@@ -146,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DevicePolicyManager                     mDevicePolicyManager;
     private PackageManager                          mPackageManager;
     private ImageView                               mMotionImageView;
-    private ImageView                               mLockImageView;
+    private LottieAnimationView                     mLockImageAniView;
     private ImageView                               mLockAndGoImageView;
     private ProgressBar                             mLockProgress;
     private ProgressBar                             mLockAndGoProgress;
@@ -234,20 +236,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mMotionImageView.setBackgroundResource( R.drawable.motion_garage);
         mMotionImageView.setVisibility( View.INVISIBLE);
 
-        mLockImageView = (ImageView) findViewById( R.id.lock_image);
-        mLockImageView.setBackgroundResource( R.drawable.door_state_unknown);
-        mLockImageView.setVisibility( View.INVISIBLE);
-        mLockImageView.setOnClickListener( new View.OnClickListener() {
+        mLockImageAniView = (LottieAnimationView)findViewById( R.id.lock_image_ani);
+        mLockImageAniView.setVisibility( View.INVISIBLE);
+        mLockImageAniView.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Object tagObj = v.getTag();
-                if (tagObj != null && tagObj instanceof String) {
-                    int currLockState = Integer.parseInt(tagObj.toString().trim().split("#", 2)[0]);
+                if (tagObj != null && tagObj instanceof Integer) {
+                    int currLockState = ((Integer)mLockImageAniView.getTag()).intValue();
                     Intent bc = new Intent();
                     bc.setAction(LockModel.ACTION_LOCK);
-                    if(currLockState == LockModel.LOCK_LOCKED)
+                    if (currLockState == LockModel.LOCK_LOCKED)
                         bc.putExtra("lockActionCmd", LockModel.CMD_UNLOCK);
-                    else if(currLockState == LockModel.LOCK_UNLOCKED)
+                    else if (currLockState == LockModel.LOCK_UNLOCKED)
                         bc.putExtra("lockActionCmd", LockModel.CMD_LOCK);
                     getContext().sendBroadcast(bc);
                     mLockProgress.setVisibility(View.VISIBLE);
@@ -816,8 +817,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 handleMotionSensorGarden(value);
             else if (action.equals(LockModel.ACTION_LOCK))
                 handleLockAction(intent.getExtras());
-          //  else if (action.equals(LOCK_AND_GO))
-         //       handleLockNgo(intent.getIntExtra("state", -1), value);
             else if( action.equals( LogPreferenceFragment.SYSTEMSERVICE))
                 handleSystemServiceCmd( intent.getStringExtra( SystemModel.KEY_MESSAGE));
             else if( action.startsWith(MainListAdapter.ACTION_CHANGED_IN_LIST_MODUL + MainActivity.SOUND))
@@ -856,8 +855,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         private void handleLockAction(Bundle extras) {
-
-          //  mLockProgress.setVisibility(View.INVISIBLE);
+            System.out.println ( "handleLockAction: " + extras.toString());
 
             if( extras.containsKey("bridgeConnected")) {
                 mLockAndGoImageView.setVisibility( extras.getBoolean( "bridgeConnected", false) ? View.VISIBLE : View.INVISIBLE);
@@ -879,18 +877,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
 
-            if( extras.containsKey("someoneMoving")) {
-                mLockImageView.setVisibility(extras.getBoolean("someoneMoving") ? View.VISIBLE : View.INVISIBLE);
-            }
-
             if( extras.containsKey("success")) {
                 if( ! extras.getBoolean("success")) {
-                    mLockImageView.setBackgroundResource(R.drawable.door_state_unknown);
                     if( extras.getBoolean("showFailure", false)) {
                         Toast.makeText(getApplicationContext(), extras.getString("shortText"), Toast.LENGTH_LONG).show();
-                    }
-                    if( extras.getBoolean("hideIcon", false)) {
-                        mLockImageView.setVisibility(View.INVISIBLE);
                     }
                 }
             }
@@ -902,56 +892,57 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 String doorStateText = extras.getString("doorStateText");
              //   boolean someoneMoving = extras.getBoolean("someoneMoving");
 
+                handleLockState(lockState);
+
+                if( lockState == LockModel.LOCK_UNCALIBRATED || lockState >= 5) {
+                    Toast.makeText(getApplicationContext(), lockStateText, Toast.LENGTH_LONG).show();
+                }
+
               //  mLockImageView.setVisibility(someoneMoving ? View.VISIBLE : View.INVISIBLE);
 
                 // door is open
+                /*
                 if( lockState == LockModel.LOCK_UNLOCKED && doorState == LockModel.DOOR_OPENED) {
-                    mLockImageView.setBackgroundResource( R.drawable.door_state_open);
-                    mLockImageView.setTag(LockModel.LOCK_UNLOCKED + "#" + lockStateText); // workaround when door state is wrong
+                    //mLockImageView.setBackgroundResource( R.drawable.door_state_open);
+                    showDoorOpen();
+                    mLockImageView.setTag( new Integer(LockModel.LOCK_UNLOCKED)); // workaround when door state is wrong
+                    mLockImageAniView.setTag(new Integer(LockModel.LOCK_UNLOCKED)); // workaround when door state is wrong
+                } */
+            }
+
+            if( extras.containsKey("someoneMoving")) {
+                mLockImageAniView.setVisibility(extras.getBoolean("someoneMoving") ? View.VISIBLE : View.INVISIBLE);
+            }
+        }
+
+        private void handleLockState( int newState) {
+            int currIconState = mLockImageAniView.getTag() == null ? -1 : ((Integer)mLockImageAniView.getTag()).intValue();  // icon states: -1 = Invisible, LockModel.LOCK_UNLOCKED, LockModel.LOCK_LOCKED
+            int newIconState = getSimpleLockState(newState);
+
+            System.out.println( "handleLockAction State: currIconState: " + currIconState + " newIconState: " + newIconState);
+            if( currIconState != newIconState) {
+                mLockImageAniView.setTag( new Integer(newIconState));
+                if( newIconState == LockModel.LOCK_UNLOCKED) {
+                    mLockImageAniView.setVisibility(View.VISIBLE);
+                    mLockImageAniView.setSpeed(1);
+                    mLockImageAniView.playAnimation();
+                } else if( newIconState == LockModel.LOCK_LOCKED) {
+                    mLockImageAniView.setVisibility(View.VISIBLE);
+                    mLockImageAniView.setSpeed(-1);  // show locked
+                    mLockImageAniView.playAnimation();
                 } else {
-                    if( mLockImageView.getTag() != null && ! mLockImageView.getTag().toString().equals(lockState + "#" + lockStateText)) // hide progress when lock state changed
-                        mLockProgress.setVisibility(View.INVISIBLE);
-
-                    mLockImageView.setTag(lockState + "#" + lockStateText);
-
-                    if( lockState == LockModel.LOCK_UNLOCKED || lockState == LockModel.LOCK_UNLOCKING || lockState == LockModel.LOCK_UNLOCKED_LOCKNGO || lockState == LockModel.LOCK_UNLATCHED || lockState == LockModel.LOCK_UNLATCHING) {
-                        mLockImageView.setBackgroundResource( R.drawable.door_state_unlocked);
-                    } else if( lockState == LockModel.LOCK_LOCKED || lockState == LockModel.LOCK_LOCKING) {
-                        mLockImageView.setBackgroundResource( R.drawable.door_state_locked);
-                    } else if( lockState > -1) {
-                        mLockImageView.setBackgroundResource( R.drawable.door_state_unknown);
-                        Toast.makeText(getApplicationContext(), lockStateText + ", " + doorStateText, Toast.LENGTH_LONG).show();
-                    }
+                    mLockImageAniView.setVisibility(View.INVISIBLE);
                 }
             }
         }
 
-        private void handleLockNgo(Bundle extras) {
-           /* mLockAndGoProgress.setVisibility(View.INVISIBLE);
-            switch (value) {
-                case 0 : mLockAndGoImageView.setVisibility( View.INVISIBLE); return;
-                case 1 : mLockAndGoImageView.setVisibility( View.VISIBLE); return;
-                case 2 : {
-                    mLockAndGoImageView.setBackgroundResource(R.drawable.lockngo);
-                    mLockAndGoImageView.setVisibility( View.VISIBLE);
-                } return;
-                case 3 : {
-                    blinkLockNgoImage(true);
-                    Toast.makeText(getApplicationContext(), "Lock and go aktiv: 15 Sekunden", Toast.LENGTH_LONG).show();
-                } return; */
-/*
-            if(value == 1) {
-                // start blinking
-                mLockAndGoImageView.setBackgroundResource(R.drawable.lockngo3_active);
-                for(int cnt=0; cnt<10; cnt++) {
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            mLockAndGoImageView.setBackgroundResource(R.drawable.lockngo3);
-                        }
-                    }, 10000);
-                }
-            } */
+        private int getSimpleLockState(int lockState) {
+            if( lockState == LockModel.LOCK_UNLOCKED || lockState == LockModel.LOCK_UNLOCKING || lockState == LockModel.LOCK_UNLOCKED_LOCKNGO || lockState == LockModel.LOCK_UNLATCHED || lockState == LockModel.LOCK_UNLATCHING) {
+                return LockModel.LOCK_UNLOCKED;
+            } else if( lockState == LockModel.LOCK_LOCKED || lockState == LockModel.LOCK_LOCKING) {
+                return LockModel.LOCK_LOCKED;
+            } else
+                return -1;
         }
 
         private void blinkLockNgoImage( boolean status) {
