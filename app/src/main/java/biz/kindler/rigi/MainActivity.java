@@ -869,7 +869,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 } else if( lockActionId == LockModel.CMD_LOCK_N_GO || lockActionId == LockModel.CMD_LOCK_N_GO_WITH_UNLATCH) {
                     mLockAndGoProgress.setVisibility(View.INVISIBLE);
                     boolean activated = extras.getBoolean("success", false);
-                    String notiTxt =  activated ? "Lock and go aktiviert: 20 Sekunden verbleiben..." : extras.getString("failure", "unknown error");
+                    String notiTxt =  activated ? "Lock and go aktiviert" : extras.getString("failure", "unknown error");
                     Toast.makeText(getApplicationContext(), notiTxt, Toast.LENGTH_LONG).show();
                     if( activated) {
                         blinkLockNgoImage(true);
@@ -956,7 +956,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         try {
                             mLockAndGoImageView.setBackgroundResource(cnt % 2 == 0 ? R.drawable.lockngo_toggle1 : R.drawable.lockngo_toggle2);
                             cnt++;
-                            if(cnt >= 40) {
+                            if(cnt >= 60) {
                                 mLockAndGoImageView.setBackgroundResource(R.drawable.lockngo);
                                 mLockNgoActive = false;
                                 cancel();

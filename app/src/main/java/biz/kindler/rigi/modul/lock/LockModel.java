@@ -4,11 +4,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.CountDownTimer;
 import android.os.Handler;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
-import android.widget.Toast;
-
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -19,30 +18,19 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import biz.kindler.rigi.ItemManager;
 import biz.kindler.rigi.ItemManager2;
 import biz.kindler.rigi.MainActivity;
 import biz.kindler.rigi.MainListAdapter;
-import biz.kindler.rigi.modul.BaseModel;
-import biz.kindler.rigi.modul.entree.EntreeView;
-import biz.kindler.rigi.modul.vbl.VBLModel;
+
 
 /**
- * Created by P.Kindler
- * patrick.kindler@schindler.com (kindlepa)
- * TMG PORT Technology
+ * Created by Patrick Kindler, Switzerland
  * 05.01.21
  */
 public class LockModel extends BroadcastReceiver {
     public static final String  ACTION_LOCK         = "action_lock";
-  //  public static final String  ACTION_LOCK_N_GO    = "action_lock_n_go";
-    public static final String  ACTION_BRIDGE       = "action_bridge";
 
     // Lock states (according: Nuki API)
     public static final int         LOCK_UNCALIBRATED       = 0;
@@ -82,6 +70,8 @@ public class LockModel extends BroadcastReceiver {
     private int                 mTickCnt;
     private int                 mLockStateCnt;
     private boolean             mBridgeConnected;
+    private boolean             mTtsReady;
+    private TextToSpeech        mTts;
 
     public LockModel(final Context ctx) {
         mCtx = ctx;
@@ -92,54 +82,18 @@ public class LockModel extends BroadcastReceiver {
         intentFilter.addAction(Intent.ACTION_TIME_TICK);
         intentFilter.addAction(SOMEONE_MOVING);
         intentFilter.addAction(MainListAdapter.ACTION_PANEL_CLICK_MODUL + MainActivity.LOCK);
-       // intentFilter.addAction(MainActivity.LOCK_AND_GO);
-
         intentFilter.addAction(ACTION_LOCK);
-       // intentFilter.addAction(ACTION_LOCK_N_GO);
-
         mCtx.registerReceiver(this, intentFilter);
 
         mSomeoneMoving = true;
         requestLockStateWithDelay(15000);
-    }
 
-
-    private void sendStateBC(final int lockState, final String lockStateText, final int doorState, final String doorStateText, boolean someoneMoving) {
-        Intent bc = new Intent();
-        bc.setAction( ACTION_LOCK);
-       // bc.putExtra( ItemManager2.VALUE, text);
-        bc.putExtra( "lockState", lockState);
-        bc.putExtra( "lockStateText", lockStateText);
-        bc.putExtra( "doorState", doorState);
-        bc.putExtra( "doorStateText", doorStateText);
-        bc.putExtra( "someoneMoving", someoneMoving);
-        mCtx.sendBroadcast(bc);
-    }
-
-    private void sendCmdResultBC(final String action, boolean success) {
-        Intent bc = new Intent();
-        bc.setAction( action);
-        bc.putExtra( "success", success);
-        mCtx.sendBroadcast(bc);
-    }
-/*
-    private void sendCmdResultBC(final String action, boolean success, final String shortText, String longText, boolean showFailure, boolean hideIcon) {
-        Intent bc = new Intent();
-        bc.setAction( action);
-        bc.putExtra( "success", success);
-        bc.putExtra( "shortText", shortText);
-        bc.putExtra( "longText", longText);
-        bc.putExtra( "showFailure", showFailure);
-        bc.putExtra( "hideIcon", hideIcon);
-        mCtx.sendBroadcast(bc);
-    } */
-
-    private void sendLockNGoBC(final int state, final String text) {
-        Intent bc = new Intent();
-        bc.setAction( MainActivity.LOCK_AND_GO);
-        bc.putExtra( ItemManager2.VALUE, text);
-        bc.putExtra( "state", state);
-        mCtx.sendBroadcast(bc);
+        mTts = new TextToSpeech(mCtx, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                mTtsReady = status != TextToSpeech.ERROR;
+            }
+        });
     }
 
     @Override
@@ -151,31 +105,8 @@ public class LockModel extends BroadcastReceiver {
             handleTimeTick();
         if( action.equals(SOMEONE_MOVING))
             handleSomeoneMoving(value);
-        /*else if( action.equals(MainListAdapter.ACTION_PANEL_CLICK_MODUL + MainActivity.LOCK)) {
-            if( intent.getIntExtra(MainListAdapter.KEY_BUTTON_NR, -1) == 3) // 3 == Lock N Go
-                handleLockNgoCmd();
-        } */
-        else if (action.equals(ACTION_LOCK)) {
-
-            // TEST !!!!!!
-            /*
-            final int lockActionCmd = intent.getIntExtra("lockActionCmd", -1);
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if( lockActionCmd == CMD_LOCK_N_GO) {
-                        Intent bc = new Intent();
-                        bc.setAction( ACTION_LOCK);
-                        bc.putExtra("lockActionId", lockActionCmd);
-                        bc.putExtra("success", false);
-                        bc.putExtra( "failure", "any demo failure message");
-                        mCtx.sendBroadcast(bc);
-                    }
-                }
-            }, 5000); */
-
+        else if (action.equals(ACTION_LOCK))
             doLockAction(intent.getIntExtra("lockActionCmd", -1));
-        }
     }
 
     private void handleTimeTick() {
@@ -195,19 +126,12 @@ public class LockModel extends BroadcastReceiver {
             mSomeoneMoving = true;
             mLockStateCnt = 0;
             requestLockStateWithDelay(0);
-          //  Toast.makeText(mCtx, "MOVING ON", Toast.LENGTH_LONG).show();
         } else if (itemState.equals("OFF")) {
             mSomeoneMoving = false;
-          //  sendStateBC(-1, "?", -1, "?", false);
-         //   Toast.makeText(mCtx, "MOVING OFF", Toast.LENGTH_LONG).show();
         }
 
         bc.putExtra( "someoneMoving", mSomeoneMoving);
         mCtx.sendBroadcast(bc);
-    }
-
-    private void handleLockNgoAction() {
-        doLockAction( CMD_LOCK_N_GO_WITH_UNLATCH);
     }
 
     private void requestLockStateWithDelay(int delayMs) {
@@ -248,6 +172,29 @@ public class LockModel extends BroadcastReceiver {
             LockActionCallback lockActionCallback = new LockActionCallback(lockActionId);
             String cmd = String.format("http://%1$s:8080/lockAction?action=%2$s&nowait=1&nukiId=%3$s&token=%4$s", BRIDGE_IP, lockActionId, NUKI_ID, BRIDGE_TOKEN);
             mVolleyRequestQueue.add(new JsonObjectRequest(Request.Method.GET, cmd, null, lockActionCallback, lockActionCallback));
+        }
+    }
+
+    private void handleLockAndGoActivated() {
+        if( mTtsReady) {
+            mTts.speak("Lock and go aktiviert. 25 Sekunden verbleiben", TextToSpeech.QUEUE_FLUSH, null, null);
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    new CountDownTimer(21000, 5000) {
+                        public void onTick(long millisUntilFinished) {
+                            int remainingTime = new Long(millisUntilFinished / 1000).intValue();
+                            if (remainingTime != 0 && remainingTime != 1)
+                                mTts.speak(remainingTime + " Sekunden", TextToSpeech.QUEUE_FLUSH, null, null);
+                        }
+
+                        public void onFinish() {
+                            mTts.speak("Auf Wiedersehen", TextToSpeech.QUEUE_FLUSH, null, null);
+                        }
+                    }.start();
+                }
+            }, 8000);
         }
     }
 
@@ -294,12 +241,8 @@ public class LockModel extends BroadcastReceiver {
 
                 Log.i(TAG, infoString);
                 sendBridgeInfo( mBridgeConnected, infoString);
-                //Toast.makeText(mCtx, infoString, Toast.LENGTH_LONG).show();
-              //  sendLockNGoBC(mBridgeConnected ? 1 : 0, infoString);
-              //  sendCmdResultBC( ACTION_BRIDGE, true);
             } catch(Exception ex) {
                 Log.w(TAG, ex);
-               // sendCmdResultBC( ACTION_BRIDGE, false, "BridgeInfo Error", ex.getMessage(), true, true);
                 sendBridgeInfo( false, ex.getMessage());
             }
         }
@@ -340,7 +283,6 @@ public class LockModel extends BroadcastReceiver {
             Log.w(TAG, errMsg);
             bc.putExtra( "failure", errMsg);
             mCtx.sendBroadcast(bc);
-           // sendCmdResultBC( ACTION_LOCK, false, "LockStateError", errMsg, true, false);
         }
 
         @Override
@@ -407,12 +349,12 @@ public class LockModel extends BroadcastReceiver {
             try {
                 bc.putExtra( "success", response.getBoolean("success"));
                 mCtx.sendBroadcast(bc);
-                //Log.i(TAG, "LockActionResponse: " + success);
+                if( lockActionId == CMD_LOCK_N_GO || lockActionId == CMD_LOCK_N_GO_WITH_UNLATCH)
+                    handleLockAndGoActivated();
             } catch(Exception ex) {
                 Log.w(TAG, ex);
                 bc.putExtra( "failure", ex.getMessage());
                 mCtx.sendBroadcast(bc);
-              //  sendCmdResultBC( ACTION_LOCK, false, "LockActionResponse", ex.getMessage(), true, false);
             }
         }
 
@@ -430,8 +372,6 @@ public class LockModel extends BroadcastReceiver {
             bc.putExtra( "lockActionId", lockActionId);
             bc.putExtra( "failure", errMsg);
             mCtx.sendBroadcast(bc);
-
-          //  sendCmdResultBC( ACTION_LOCK, false, "LockActionError", errMsg, true, false);
         }
     }
 }
