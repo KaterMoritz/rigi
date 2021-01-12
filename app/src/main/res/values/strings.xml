@@ -115,6 +115,7 @@
     <string name="pref_header_log">LOG</string>
 
     <string name="pref_header_sound">Musik</string>
+    <string name="pref_header_lock">Schloss</string>
     <string name="pref_socket_switch_title">Media Steckdose Schalten</string>
 
 

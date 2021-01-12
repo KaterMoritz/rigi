@@ -106,7 +106,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 || CalendarPreferenceFragment.class.getName().equals(fragmentName)
                 || PublicTransportPreferenceFragment.class.getName().equals(fragmentName)
                 || SoundPreferenceFragment2.class.getName().equals(fragmentName)
-                || UpdatePreferenceFragment.class.getName().equals(fragmentName);
+                || UpdatePreferenceFragment.class.getName().equals(fragmentName)
+                || LockPreferenceFragment.class.getName().equals(fragmentName);
     }
 
 

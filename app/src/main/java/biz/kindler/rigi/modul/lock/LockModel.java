@@ -4,10 +4,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
+
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -23,6 +27,8 @@ import org.json.JSONObject;
 import biz.kindler.rigi.ItemManager2;
 import biz.kindler.rigi.MainActivity;
 import biz.kindler.rigi.MainListAdapter;
+import biz.kindler.rigi.settings.LockPreferenceFragment;
+import biz.kindler.rigi.settings.SoundPreferenceFragment2;
 
 
 /**
@@ -58,13 +64,15 @@ public class LockModel extends BroadcastReceiver {
     public static final int         CMD_LOCK_N_GO           = 4;
     public static final int         CMD_LOCK_N_GO_WITH_UNLATCH = 5;
 
+    private static final String     VOICE_INTRO_TEXT        = "Lock and go aktiviert. 25 Sekunden verbleiben";
+    private static final String     VOICE_END_TEXT          = "Auf Wiedersehen";
+    private static final String     VOICE_REMAINING_UNIT    = "Sekunden";
+
     private final static String TAG = LockModel.class.getSimpleName();
     private static final String SOMEONE_MOVING  = "Bewegung_Ankleide";
-    private static final String BRIDGE_IP       = "192.168.1.147";
-    private static final String BRIDGE_TOKEN    = "";//
-    private static final String NUKI_ID         = "";
 
     private Context             mCtx;
+    private SharedPreferences   mPrefs;
     private RequestQueue        mVolleyRequestQueue;
     private boolean             mSomeoneMoving;
     private int                 mTickCnt;
@@ -85,8 +93,10 @@ public class LockModel extends BroadcastReceiver {
         intentFilter.addAction(ACTION_LOCK);
         mCtx.registerReceiver(this, intentFilter);
 
-        mSomeoneMoving = true;
-        requestLockStateWithDelay(15000);
+        if ( getNukiSwitch()) {
+            mSomeoneMoving = true;
+            requestLockStateWithDelay(15000);
+        }
 
         mTts = new TextToSpeech(mCtx, new TextToSpeech.OnInitListener() {
             @Override
@@ -101,12 +111,14 @@ public class LockModel extends BroadcastReceiver {
         String action = intent.getAction();
         String value = intent.getStringExtra(ItemManager2.VALUE);
 
-        if( action.equals( Intent.ACTION_TIME_TICK))
-            handleTimeTick();
-        if( action.equals(SOMEONE_MOVING))
-            handleSomeoneMoving(value);
-        else if (action.equals(ACTION_LOCK))
-            doLockAction(intent.getIntExtra("lockActionCmd", -1));
+        if ( getNukiSwitch()) {
+            if (action.equals(Intent.ACTION_TIME_TICK))
+                handleTimeTick();
+            if (action.equals(SOMEONE_MOVING))
+                handleSomeoneMoving(value);
+            else if (action.equals(ACTION_LOCK))
+                doLockAction(intent.getIntExtra("lockActionCmd", -1));
+        }
     }
 
     private void handleTimeTick() {
@@ -151,33 +163,53 @@ public class LockModel extends BroadcastReceiver {
 
     private void requestLockStateCachedFromBridge() {
         LockStateCallback lockStateCallback = new LockStateCallback();
-        String cmd = String.format("http://%1$s:8080/list?token=%2$s", BRIDGE_IP, BRIDGE_TOKEN);
+        String cmd = String.format("http://%1$s:8080/list?token=%2$s", getBridgeIp(), getBridgeToken());
         mVolleyRequestQueue.add(new JsonArrayRequest(Request.Method.GET, cmd, null, lockStateCallback, lockStateCallback));
     }
 
     private void requestLockStateFromLock() {
         LockStateCallback lockStateCallback = new LockStateCallback();
-        String cmd = String.format("http://%1$s:8080/lockState?nukiId=%2$s&token=%3$s", BRIDGE_IP, NUKI_ID, BRIDGE_TOKEN);
+        String cmd = String.format("http://%1$s:8080/lockState?nukiId=%2$s&token=%3$s", getBridgeIp(), getNukiId(), getBridgeToken());
         mVolleyRequestQueue.add(new JsonArrayRequest(Request.Method.GET, cmd, null, lockStateCallback, lockStateCallback));
     }
 
     private void requestInfoFromBridge() {
         InfoFromBridgeCallback infoFromBridgeCallback = new InfoFromBridgeCallback();
-        String cmd = String.format("http://%1$s:8080/info?token=%2$s", BRIDGE_IP, BRIDGE_TOKEN);
+        String cmd = String.format("http://%1$s:8080/info?token=%2$s", getBridgeIp(), getBridgeToken());
         mVolleyRequestQueue.add(new JsonObjectRequest(Request.Method.GET, cmd, null, infoFromBridgeCallback, infoFromBridgeCallback));
+    }
+
+    private String getBridgeIp() {
+        return getPrefs().getString(LockPreferenceFragment.NUKI_BRIDGE_IP, "0.0.0.0");
+    }
+
+    private String getBridgeToken() {
+        return getPrefs().getString(LockPreferenceFragment.NUKI_BRIDGE_TOKEN, "");
+    }
+
+    private String getNukiId() {
+        return getPrefs().getString(LockPreferenceFragment.NUKI_ID, "");
+    }
+
+    private boolean getNukiSwitch() {
+        return getPrefs().getBoolean(LockPreferenceFragment.NUKI_SWITCH, false);
+    }
+
+    private boolean getLockAndGoVoiceSwitch() {
+        return getPrefs().getBoolean(LockPreferenceFragment.LOCK_AND_GO_VOICE_SWITCH, false);
     }
 
     private void doLockAction( int lockActionId) {
         if( lockActionId > 0) {
             LockActionCallback lockActionCallback = new LockActionCallback(lockActionId);
-            String cmd = String.format("http://%1$s:8080/lockAction?action=%2$s&nowait=1&nukiId=%3$s&token=%4$s", BRIDGE_IP, lockActionId, NUKI_ID, BRIDGE_TOKEN);
+            String cmd = String.format("http://%1$s:8080/lockAction?action=%2$s&nowait=1&nukiId=%3$s&token=%4$s", getBridgeIp(), lockActionId, getNukiId(), getBridgeToken());
             mVolleyRequestQueue.add(new JsonObjectRequest(Request.Method.GET, cmd, null, lockActionCallback, lockActionCallback));
         }
     }
 
     private void handleLockAndGoActivated() {
-        if( mTtsReady) {
-            mTts.speak("Lock and go aktiviert. 25 Sekunden verbleiben", TextToSpeech.QUEUE_FLUSH, null, null);
+        if( mTtsReady && getLockAndGoVoiceSwitch()) {
+            mTts.speak(VOICE_INTRO_TEXT, TextToSpeech.QUEUE_FLUSH, null, null);
 
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -186,11 +218,11 @@ public class LockModel extends BroadcastReceiver {
                         public void onTick(long millisUntilFinished) {
                             int remainingTime = new Long(millisUntilFinished / 1000).intValue();
                             if (remainingTime != 0 && remainingTime != 1)
-                                mTts.speak(remainingTime + " Sekunden", TextToSpeech.QUEUE_FLUSH, null, null);
+                                mTts.speak(remainingTime + " " + VOICE_REMAINING_UNIT, TextToSpeech.QUEUE_FLUSH, null, null);
                         }
 
                         public void onFinish() {
-                            mTts.speak("Auf Wiedersehen", TextToSpeech.QUEUE_FLUSH, null, null);
+                            mTts.speak(VOICE_END_TEXT, TextToSpeech.QUEUE_FLUSH, null, null);
                         }
                     }.start();
                 }
@@ -203,9 +235,12 @@ public class LockModel extends BroadcastReceiver {
 
         @Override
         public void onErrorResponse(VolleyError error) {
-            String errMsg = error == null ? "VolleyError" : (error.getMessage() == null ? "error" : error.getMessage());
+            String errMsg;
+            if( error instanceof AuthFailureError)
+                errMsg = "AuthFailureError";
+            else
+                errMsg = error == null ? "VolleyError" : (error.getMessage() == null ? "error" : error.getMessage());
             Log.w(TAG, errMsg);
-          //  sendCmdResultBC( ACTION_BRIDGE, false, "BridgeInfo Error", errMsg, true, true);
             sendBridgeInfo( false, errMsg);
         }
 
@@ -232,36 +267,21 @@ public class LockModel extends BroadcastReceiver {
         @Override
         public void onResponse(JSONObject response) {
             try {
-                mBridgeConnected = response.getBoolean("serverConnected");
-                long uptime = response.getLong("uptime");
-                JSONObject versionObj = (JSONObject) response.get("versions");
-                boolean bridgeHW = versionObj.has("firmwareVersion");
-                String version = bridgeHW ? versionObj.getString( "firmwareVersion") : versionObj.getString( "appVersion");
-                String infoString = "NUKI Bridge " + (bridgeHW ? " Hardware " : " Android ") + (mBridgeConnected ? "connected" : "NOT connected") + ", version: " + version + ", uptime: " + toReadableString(uptime);
-
-                Log.i(TAG, infoString);
-                sendBridgeInfo( mBridgeConnected, infoString);
+                mBridgeConnected = response.getBoolean("serverConnected");;
+                Log.i(TAG, "BridgeConnected: " + mBridgeConnected);
+                sendBridgeInfo( mBridgeConnected, null);
             } catch(Exception ex) {
                 Log.w(TAG, ex);
                 sendBridgeInfo( false, ex.getMessage());
             }
         }
 
-        private String toReadableString(long uptimeSeconds) {
-            long uptimeMinutes = uptimeSeconds / 60;
-            if(uptimeMinutes < 60)
-                return uptimeMinutes + " Min";
-            else if(uptimeMinutes < 1440)  // 24 x 60
-                return uptimeMinutes / 60 + " Std";
-            else
-                return uptimeMinutes / 60 / 24 + " Tage";
-        }
-
         private void sendBridgeInfo( boolean connected, String infoTxt) {
             Intent bc = new Intent();
             bc.setAction( ACTION_LOCK);
             bc.putExtra( "bridgeConnected", connected);
-            bc.putExtra( "info", infoTxt);
+            if( infoTxt != null)
+                bc.putExtra( "info", infoTxt);
             mCtx.sendBroadcast(bc);
         }
     }
@@ -373,5 +393,12 @@ public class LockModel extends BroadcastReceiver {
             bc.putExtra( "failure", errMsg);
             mCtx.sendBroadcast(bc);
         }
+    }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+    protected SharedPreferences getPrefs() {
+        if( mPrefs == null)
+            mPrefs = PreferenceManager.getDefaultSharedPreferences(mCtx);
+        // mPrefs = mCtx.getSharedPreferences(MainActivity.PREFS_ID, Activity.MODE_PRIVATE);
+        return mPrefs;
     }
 }

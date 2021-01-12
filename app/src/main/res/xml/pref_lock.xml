@@ -1,0 +1,56 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:theme="@android:style/Theme.Translucent"
+    android:background="@color/colorTransparent">
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+
+    <PreferenceCategory
+        android:title="Nuki Schloss"
+        android:textSize="48dp"
+        android:textColor="@android:color/white">
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="nuki_switch"
+            android:title="Nuki verwenden"
+            android:background="@color/colorPrimaryDark"/>
+
+        <EditTextPreference
+            android:inputType="textUri"
+            android:key="nuki_bridge_ip"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="Nuki Bridge IP" />
+
+        <EditTextPreference
+            android:inputType="number"
+            android:key="nuki_id"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="Nuki ID" />
+
+        <EditTextPreference
+            android:inputType="text"
+            android:key="nuki_bridge_token"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="Nuki Bridge Token" />
+
+        <Preference
+            android:title="Bridge Status"
+            android:key="nuki_bridge_status"
+            android:summary="-"/>
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="lockngo_voice_switch"
+            android:title="Lock and go Sprachausgabe"
+            android:background="@color/colorPrimaryDark"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

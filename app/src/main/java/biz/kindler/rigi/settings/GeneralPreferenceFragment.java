@@ -175,8 +175,12 @@ public class GeneralPreferenceFragment extends BasePreferenceFragment {
                     while (iterator.hasNext()) {
                         String key = (String) iterator.next();
                         String value = dataArr.getString( key);
+
                         Log.d(TAG, "key:" + key + ",val:" + value);
-                        prefsEditor.putString( key, value);
+                        if( value.equals("true") || value.equals("false"))
+                            prefsEditor.putBoolean( key, Boolean.valueOf(value));
+                        else
+                            prefsEditor.putString( key, value);
                     }
                     prefsEditor.apply();
                     Util.showToastInUiThread(getContext(), dataArr.length() + " Einstellungen geladen", Toast.LENGTH_LONG);

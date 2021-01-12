@@ -859,7 +859,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             if( extras.containsKey("bridgeConnected")) {
                 mLockAndGoImageView.setVisibility( extras.getBoolean( "bridgeConnected", false) ? View.VISIBLE : View.INVISIBLE);
-                Toast.makeText(getApplicationContext(),  extras.getString("info"), Toast.LENGTH_LONG).show();
+                if(extras.containsKey("info"))
+                    Toast.makeText(getApplicationContext(),  extras.getString("info"), Toast.LENGTH_LONG).show();
             }
 
             if( extras.containsKey("lockActionId")) {
