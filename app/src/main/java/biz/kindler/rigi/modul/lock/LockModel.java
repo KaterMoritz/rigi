@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -64,7 +65,7 @@ public class LockModel extends BroadcastReceiver {
     public static final int         CMD_LOCK_N_GO           = 4;
     public static final int         CMD_LOCK_N_GO_WITH_UNLATCH = 5;
 
-    private static final String     VOICE_INTRO_TEXT        = "Lock and go aktiviert. 25 Sekunden verbleiben";
+    private static final String     VOICE_INTRO_TEXT        = "Lock and go aktiviert. 15 Sekunden verbleiben";
     private static final String     VOICE_END_TEXT          = "Auf Wiedersehen";
     private static final String     VOICE_REMAINING_UNIT    = "Sekunden";
 
@@ -209,20 +210,25 @@ public class LockModel extends BroadcastReceiver {
 
     private void handleLockAndGoActivated() {
         if( mTtsReady && getLockAndGoVoiceSwitch()) {
-            mTts.speak(VOICE_INTRO_TEXT, TextToSpeech.QUEUE_FLUSH, null, null);
+
+            String volume = PreferenceManager.getDefaultSharedPreferences(mCtx).getString(LockPreferenceFragment.TTS_VOLUME, "0.5");
+            final Bundle param = new Bundle();
+            param.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, Float.parseFloat(volume));
+
+            mTts.speak(VOICE_INTRO_TEXT, TextToSpeech.QUEUE_FLUSH, param, null);
 
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    new CountDownTimer(21000, 5000) {
+                    new CountDownTimer(11000, 5000) {
                         public void onTick(long millisUntilFinished) {
                             int remainingTime = new Long(millisUntilFinished / 1000).intValue();
                             if (remainingTime != 0 && remainingTime != 1)
-                                mTts.speak(remainingTime + " " + VOICE_REMAINING_UNIT, TextToSpeech.QUEUE_FLUSH, null, null);
+                                mTts.speak(remainingTime + " " + VOICE_REMAINING_UNIT, TextToSpeech.QUEUE_FLUSH, param, null);
                         }
 
                         public void onFinish() {
-                            mTts.speak(VOICE_END_TEXT, TextToSpeech.QUEUE_FLUSH, null, null);
+                            mTts.speak(VOICE_END_TEXT, TextToSpeech.QUEUE_FLUSH, param, null);
                         }
                     }.start();
                 }

@@ -5,9 +5,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -18,6 +21,8 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONObject;
+
+import java.util.HashMap;
 
 import biz.kindler.rigi.R;
 import biz.kindler.rigi.modul.lock.LockModel;
@@ -38,10 +43,12 @@ public class LockPreferenceFragment extends BasePreferenceFragment {
     public static final String NUKI_BRIDGE_TOKEN = "nuki_bridge_token";
     public static final String NUKI_BRIDGE_STATUS = "nuki_bridge_status";
     public static final String LOCK_AND_GO_VOICE_SWITCH = "lockngo_voice_switch";
+    public static final String TTS_VOLUME = "tts_volume";
 
     private static final String NUKI_BRIDGE_IP_DEFAULT = "192.X.X.X";
     private static final String NUKI_BRIDGE_TOKEN_DEFAULT = "XXXXXX";
     private static final String NUKI_ID_DEFAULT = "000000000";
+    private static final String TEXTTOSPEECH_DEMO_TEXT = "Lock and go ist eingeschaltet. Die Lautstärke beträgt %1$s";
 
     private Preference          mNukiBridgeStatusPref;
     private EditTextPreference  mNukiBridgeIpPref;
@@ -50,6 +57,7 @@ public class LockPreferenceFragment extends BasePreferenceFragment {
     private SwitchPreference    mNukiSwitchPref;
     private SwitchPreference    mNukiLGVoicePref;
     private RequestQueue        mVolleyRequestQueue;
+    private TextToSpeech        mTts;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -151,6 +159,9 @@ public class LockPreferenceFragment extends BasePreferenceFragment {
         }
         else if (preference.getKey().equals(LOCK_AND_GO_VOICE_SWITCH)) {
             mNukiLGVoicePref.getSharedPreferences().edit().putBoolean(LOCK_AND_GO_VOICE_SWITCH, (Boolean)newValue).apply();
+            if((Boolean)newValue) {
+                speakDemoText();
+            }
         }
 
         return onPreferenceClick(preference);
@@ -177,6 +188,34 @@ public class LockPreferenceFragment extends BasePreferenceFragment {
     private String getNukiId() {
         String val =  mNukiIdPref.getSharedPreferences().getString(NUKI_ID, null);
         return val == null ? NUKI_ID_DEFAULT : val;
+    }
+
+    private void speakDemoText() {
+        try {
+            if( mTts == null) {
+                mTts = new TextToSpeech(getContext(), new TextToSpeech.OnInitListener() {
+                    @Override
+                    public void onInit(int status) {
+                        if (status == TextToSpeech.ERROR) {
+                            Toast.makeText(getContext(), "TextToSpeech not ready", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+            }
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    String volume = PreferenceManager.getDefaultSharedPreferences(getContext()).getString(TTS_VOLUME, "0.5");
+                    Bundle param = new Bundle();
+                    param.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, Float.parseFloat(volume));
+                    String speech = String.format(TEXTTOSPEECH_DEMO_TEXT, volume);
+                    mTts.speak(speech, TextToSpeech.QUEUE_FLUSH, param, null);
+                }
+            }, 1000);
+
+        } catch(Exception ex) {
+            Toast.makeText(getContext(), "TextToSpeech failure: " + ex.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
