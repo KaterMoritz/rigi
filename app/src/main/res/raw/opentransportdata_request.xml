@@ -14,11 +14,11 @@
                     </LocationRef>
                 </Destination>
                 <Params>
-                    <NumberOfResults>5</NumberOfResults>
+                    <NumberOfResults>6</NumberOfResults>
                     <StopEventType>departure</StopEventType>
                     <IncludePreviousCalls>false</IncludePreviousCalls>
                     <IncludeOnwardCalls>false</IncludeOnwardCalls>
-                    <IncludeRealtimeData>false</IncludeRealtimeData>
+                    <IncludeRealtimeData>true</IncludeRealtimeData>
                     <IncludeTrackSections>false</IncludeTrackSections>
                     <IncludeLegProjection>false</IncludeLegProjection>
                     <IncludeIntermediateStops>false</IncludeIntermediateStops>

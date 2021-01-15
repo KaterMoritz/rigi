@@ -28,37 +28,42 @@ class Connection3 implements Serializable {
     private String destinationText, startText;
     private int delayMinutes = 0;
     private boolean departureDelayed; // departure on time or delayed
+    private boolean isDirectConnection; // kein Umsteigen
 
     public static SimpleDateFormat clientDateFormat = new SimpleDateFormat( "HH:mm", Locale.getDefault());
     public static SimpleDateFormat serviceDateFormat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
 
     public Connection3(JSONObject tripJSONObj) throws Exception {
 
-        String startTimeString = tripJSONObj.getString( "trias:StartTime");
+        String startTimeString = tripJSONObj.optString( "trias:StartTime");
         OffsetDateTime odtStart = OffsetDateTime.parse( startTimeString);
         departureDate = java.util.Date.from( odtStart.toInstant()); // Instant is always in UTC.
 
-        String endTimeString = tripJSONObj.getString( "trias:EndTime");
+        String endTimeString = tripJSONObj.optString( "trias:EndTime");
         OffsetDateTime odtEnd = OffsetDateTime.parse( endTimeString);
         arrivalDate = java.util.Date.from( odtEnd.toInstant()); // Instant is always in UTC.
+
+        isDirectConnection = tripJSONObj.optString( "trias:Interchanges").equals("0");
+
         updatedDate = new Date();
 
         try {
             JSONObject timedLegObj = tripJSONObj.getJSONObject("trias:TripLeg").getJSONObject("trias:TimedLeg");
 
             JSONObject serviceObj = timedLegObj.getJSONObject("trias:Service");
-            transportType = serviceObj.getJSONObject("trias:Mode").getJSONObject("trias:Name").getString("trias:Text");
-            transportLine = serviceObj.getJSONObject("trias:PublishedLineName").getString("trias:Text");
-            destinationText = serviceObj.getJSONObject("trias:DestinationText").getString("trias:Text");
+            transportType = serviceObj.getJSONObject("trias:Mode").getJSONObject("trias:Name").optString("trias:Text");
+            transportLine = serviceObj.getJSONObject("trias:PublishedLineName").optString("trias:Text");
+           // destinationText = serviceObj.getJSONObject("trias:DestinationText").getString("trias:Text");
 
             JSONObject legBoardObj = timedLegObj.getJSONObject("trias:LegBoard");
 
-            startText = legBoardObj.getJSONObject("trias:StopPointName").getString("trias:Text");
+            startText = legBoardObj.getJSONObject("trias:StopPointName").optString("trias:Text");
+            destinationText = timedLegObj.getJSONObject("trias:LegAlight").getJSONObject("trias:StopPointName").optString("trias:Text");
 
             try {
                 JSONObject serviceDepartureObj = legBoardObj.getJSONObject("trias:ServiceDeparture");
-                String timetabledTime = serviceDepartureObj.getString("trias:TimetabledTime");
-                String estimatedTime = serviceDepartureObj.getString("trias:EstimatedTime");
+                String timetabledTime = serviceDepartureObj.optString("trias:TimetabledTime");
+                String estimatedTime = serviceDepartureObj.optString("trias:EstimatedTime");
                 departureDelayed = !estimatedTime.equals(timetabledTime);
                 if( departureDelayed) {
                     delayMinutes = calculateDepartureDelay(timetabledTime, estimatedTime);
@@ -96,16 +101,20 @@ class Connection3 implements Serializable {
         return transportLine;
     }
 
+    public boolean isDirectConnection() {
+        return isDirectConnection;
+    }
+
     public Date getDepartureDate() {
         return departureDate;
     }
 
     public String getDepartureStation() {
-        return startText.replaceFirst(",", "").replaceFirst("Bahnhof","Bhf");
+        return startText;//replaceFirst(",", "").replaceFirst("Bahnhof","Bhf");
     }
 
     public String getArrivalStation() {
-        return destinationText.replaceFirst(",", "").replaceFirst("Bahnhof","Bhf");
+        return destinationText;//.replaceFirst(",", "").replaceFirst("Bahnhof","Bhf");
     }
 
     public Date getArrivalDate() {

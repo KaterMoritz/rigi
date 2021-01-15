@@ -3,6 +3,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="130dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/round_border_gray"
     android:layout_marginTop="5dp"
     android:layout_marginBottom="5dp">
@@ -17,31 +18,25 @@
         android:contentDescription="TODO"
         android:src="@drawable/blowing_snow" />
 
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="140dip"
+        android:layout_marginTop="5dp"
+        android:layout_gravity="start"
+        android:text="Title"
+        android:singleLine="true"
+        android:textSize="22sp" />
+
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="130dp"
         android:layout_marginLeft="140dip"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="35dp"
         android:paddingRight="20dp"
         android:shrinkColumns="*"
         android:stretchColumns="*">
-
-        <TableRow
-            android:layout_height="wrap_content"
-            android:layout_width="fill_parent"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:text="Title"
-                android:singleLine="true"
-                android:textSize="20sp" />
-
-        </TableRow>
-
 
         <TableRow
             android:layout_height="wrap_content"

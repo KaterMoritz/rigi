@@ -48,7 +48,6 @@ import biz.kindler.rigi.modul.clock.TimeAndDateModel;
 import biz.kindler.rigi.modul.system.Log;
 import biz.kindler.rigi.modul.system.SystemModel;
 import biz.kindler.rigi.settings.PublicTransportPreferenceFragment;
-import biz.kindler.rigi.settings.SoundPreferenceFragment2;
 import fr.arnaudguyon.xmltojsonlib.XmlToJson;
 
 /**
@@ -72,8 +71,13 @@ public class VBLModel3 extends BaseModel implements Response.Listener<String>, R
     private RequestQueue                mVolleyRequestQueue;
     private ArrayList<Connection3>      mConnArrList;
     private SimpleDateFormat            mTimeFormatter;
-    private String                      mRequestXML;
+    private String                      mRawRequestXML;
+    private String                      mCurrRequestXML;
     private int                         mRequestCnt;
+    private int                         mConnectionPointer;
+    private String[]                    mFromLocationIds;
+    private String[]                    mToLocationIds;
+
 
 
     public VBLModel3( Context ctx) {
@@ -85,6 +89,7 @@ public class VBLModel3 extends BaseModel implements Response.Listener<String>, R
         intentFilter.addAction(Intent.ACTION_TIME_TICK);
         intentFilter.addAction(TimeAndDateModel.ACTION_DAY_SEGMENT);
         intentFilter.addAction(MainListAdapter.ACTION_CHANGED_IN_LIST_MODUL + MainActivity.VBL);
+        intentFilter.addAction(MainListAdapter.ACTION_PANEL_CLICK_MODUL + MainActivity.VBL);
         ctx.registerReceiver(this, intentFilter);
 
         mVolleyRequestQueue = Volley.newRequestQueue(ctx);
@@ -96,15 +101,18 @@ public class VBLModel3 extends BaseModel implements Response.Listener<String>, R
 
         storePrefsString(PublicTransportPreferenceFragment.TRANSPORT_REQUEST_SINCE, new SimpleDateFormat().format(new Date()));
 
-        String fromLocationId = getPrefs(ctx).getString( PublicTransportPreferenceFragment.FROM_LOCATION, "?");
-        String toLocationId = getPrefs(ctx).getString( PublicTransportPreferenceFragment.TO_LOCATION, "?");
+
 
         try {
-            mRequestXML = getResourceAsString(R.raw.opentransportdata_request);
+            mFromLocationIds = getPrefs(ctx).getString( PublicTransportPreferenceFragment.FROM_LOCATION, "?").split(",");
+            mToLocationIds = getPrefs(ctx).getString( PublicTransportPreferenceFragment.TO_LOCATION, "?").split(",");
+
+            mRawRequestXML = getResourceAsString(R.raw.opentransportdata_request);
+            mCurrRequestXML = String.format(mRawRequestXML, mFromLocationIds[mConnectionPointer], mToLocationIds[mConnectionPointer]);
         } catch (Exception ex) {
             Log.w(TAG, ex.getMessage());
         }
-        mRequestXML = String.format(mRequestXML, fromLocationId, toLocationId);
+
         initXMLParser();
      }
 
@@ -143,6 +151,8 @@ public class VBLModel3 extends BaseModel implements Response.Listener<String>, R
         }
         else if( action.equals( MainListAdapter.ACTION_CHANGED_IN_LIST_MODUL + MainActivity.VBL))
             handleShowInList( intent.getBooleanExtra( MainListAdapter.KEY_SHOW_IN_LIST, false));
+        else if(action.equals( MainListAdapter.ACTION_PANEL_CLICK_MODUL + MainActivity.VBL))
+            handleOnPanelClick();
     }
 
     private void handleSunrise() {
@@ -174,6 +184,16 @@ public class VBLModel3 extends BaseModel implements Response.Listener<String>, R
             doUpdateFromAPI();
     }
 
+    private void handleOnPanelClick() {
+        mConnectionPointer++;
+        if( mConnectionPointer >= mFromLocationIds.length) {
+            mConnectionPointer = 0;
+        }
+
+        mCurrRequestXML = String.format(mRawRequestXML, mFromLocationIds[mConnectionPointer], mToLocationIds[mConnectionPointer]);
+        doUpdateFromAPI();
+    }
+
     private void doUpdateFromAPI() {
         String apiKey = getApiKey();
         if( apiKey != null && apiKey.length() > 0) {
@@ -191,7 +211,7 @@ public class VBLModel3 extends BaseModel implements Response.Listener<String>, R
                 }
                 @Override
                 public byte[] getBody() throws AuthFailureError {
-                    return  mRequestXML.getBytes();
+                    return  mCurrRequestXML.getBytes();
                 }
             });
         } else {
@@ -223,12 +243,14 @@ public class VBLModel3 extends BaseModel implements Response.Listener<String>, R
                         for( int cnt=0; cnt<arrSize; cnt++) {
                             JSONObject currTripObj = tripResultArr.getJSONObject(cnt).getJSONObject("trias:Trip");
                             Connection3 conn = new Connection3(currTripObj);
-                            mConnArrList.add(idxCnt, conn);
-                            idxCnt++;
+                            if( conn.isDirectConnection()) {
+                                mConnArrList.add(idxCnt, conn);
+                                idxCnt++;
+                            }
                         }
 
                         updateDataHolder( true);
-                        sendSystemBroadcast( SystemModel.ACTION_LOG, getClass().getName(), "free.viapi.ch", "updated successfully");// response.toString().substring(0, 100) + "...");
+                        sendSystemBroadcast( SystemModel.ACTION_LOG, getClass().getName(), "opentransportdata.swiss", "updated successfully");// response.toString().substring(0, 100) + "...");
                         Log.d(TAG, "opentransportdata.swiss updated [AFTER UPDATE ConnArrList size=" + mConnArrList.size() + "] jsonArr size: " + arrSize);
                     } catch (Exception e) {
                         handleError( e.getMessage());
@@ -256,15 +278,22 @@ public class VBLModel3 extends BaseModel implements Response.Listener<String>, R
 
          //if( mConnArrList.size() <3 && isModulInList( MainActivity.VBL))
         //     doUpdateFromWeb();
+        String transportTypTitle = "";
 
         if (mDataHolder != null) {
             if(mConnArrList.size() > 0) {
                 Connection3 firstConn = mConnArrList.get(0);
+                transportTypTitle = firstConn.getTransportType();
                 mDataHolder.setTitle(firstConn.getTransportType() + " " + firstConn.getTransportLine() + ", " + firstConn.getDepartureStation() + " - " + firstConn.getArrivalStation());
             }
-            mDataHolder.setLine1( mConnArrList.size() > 0 ? getTextForConnection(mConnArrList.get(0)) : new String[] {"-", "",""});
-            mDataHolder.setLine2( mConnArrList.size() > 1 ? getTextForConnection(mConnArrList.get(1)) : new String[] {"-", "",""});
-            mDataHolder.setLine3( mConnArrList.size() > 2 ? getTextForConnection(mConnArrList.get(2)) : new String[] {"-", "",""});
+            mDataHolder.setLine1( mConnArrList.size() > 0 ? getTextForConnection(mConnArrList.get(0), transportTypTitle) : new String[] {"-", "",""});
+            mDataHolder.setLine2( mConnArrList.size() > 1 ? getTextForConnection(mConnArrList.get(1), transportTypTitle) : new String[] {"-", "",""});
+            mDataHolder.setLine3( mConnArrList.size() > 2 ? getTextForConnection(mConnArrList.get(2), transportTypTitle) : new String[] {"-", "",""});
+            if( mConnArrList.size() > 0) {
+                String transportType = mConnArrList.get(0).getTransportType();
+                if( transportType != null)
+                    mDataHolder.setImgResId( transportType.equals("Zug") ? R.drawable.sbb : R.drawable.vbl);
+            }
         }
         sendUpdateListItemBroadcast();
     }
@@ -297,8 +326,13 @@ public class VBLModel3 extends BaseModel implements Response.Listener<String>, R
         sendSystemBroadcast( SystemModel.ACTION_EXCEPTION, getClass().getName(), "", errorMsg);
     }
 
-    private String[] getTextForConnection( Connection3 conn) {
-        return new String[]{getTextForDepartureInMinutes(conn.getDepartureInMinutes()) + " " + conn.getDelay(), "Abfahrt " + conn.getDepartureClientFormat(), "Ankunft " + conn.getArrivalClientFormat()};
+    private String[] getTextForConnection( Connection3 conn, String transportTypeTitle) {
+        boolean showTransportTypInfo = conn.getTransportType() != null && ( ! conn.getTransportType().equalsIgnoreCase(transportTypeTitle));
+        String[] dataArr = new String[3];
+        dataArr[0] = getTextForDepartureInMinutes(conn.getDepartureInMinutes()) + " " + conn.getDelay() + (showTransportTypInfo ? " (" + conn.getTransportType() + ")" : "");
+        dataArr[1] = "Abfahrt " + conn.getDepartureClientFormat();
+        dataArr[2] = "Ankunft " + conn.getArrivalClientFormat();
+        return dataArr;
     }
 
     private String getTextForDepartureInMinutes( int min) {

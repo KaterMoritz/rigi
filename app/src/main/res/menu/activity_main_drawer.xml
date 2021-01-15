@@ -38,7 +38,7 @@
             <item
                 android:id="@+id/nav_vbl"
                 android:icon="@drawable/ic_directions_bus_white_36dp"
-                android:title="VBL Fahrplan" />
+                android:title="ÖV Fahrplan" />
             <item
                 android:id="@+id/nav_weatherstation"
                 android:icon="@drawable/ic_wb_sunny_white_36dp"
