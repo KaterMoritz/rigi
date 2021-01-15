@@ -127,6 +127,10 @@ public class ThreeLinesDataHolder implements DataHolder, Serializable {
         return line3;
     }
 
+    public void setTitle( String txt) {
+        title = txt;
+    }
+
     public void setLine1( String[] txt) {
         line1 = txt;
     }

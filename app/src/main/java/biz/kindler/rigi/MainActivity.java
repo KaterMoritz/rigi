@@ -4,7 +4,6 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.MediaRouteButton;
 import android.app.NotificationManager;
 import android.app.admin.DeviceAdminReceiver;
 import android.app.admin.DevicePolicyManager;
@@ -37,6 +36,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.mediarouter.app.MediaRouteButton;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -72,17 +72,18 @@ import biz.kindler.rigi.modul.misc.MiscModel;
 import biz.kindler.rigi.modul.shutter.ShutterModel;
 import biz.kindler.rigi.modul.sonnerie.SonnerieModel;
 import biz.kindler.rigi.modul.sound.SoundModel;
-import biz.kindler.rigi.modul.sound.SoundModel2;
 import biz.kindler.rigi.modul.sound.SoundModel3;
 import biz.kindler.rigi.modul.system.Log;
 import biz.kindler.rigi.modul.system.SystemModel;
-import biz.kindler.rigi.modul.vbl.VBLModel2;
+import biz.kindler.rigi.modul.vbl.VBLModel3;
 import biz.kindler.rigi.modul.watering.WateringModel;
 import biz.kindler.rigi.modul.weather.WeatherModel;
 import biz.kindler.rigi.modul.weatherstation.WeatherstationModel;
 import biz.kindler.rigi.settings.LogPreferenceFragment;
 import biz.kindler.rigi.settings.SettingsActivity;
 import biz.kindler.rigi.settings.SoundPreferenceFragment2;
+import kotlin.jvm.JvmClassMappingKt;
+import kotlin.reflect.KClass;
 
 
 /*
@@ -309,7 +310,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Entree
         EntreeModel entreeModel = new EntreeModel(this);
         // VBL
-        VBLModel2 vblModel = new VBLModel2( this);
+        VBLModel3 vblModel = new VBLModel3( this);
+        // KClass<VBLModel3> vblModel = JvmClassMappingKt.getKotlinClass(VBLModel3.class);
         // Calendar
         CalendarModel calendarModel = new CalendarModel( this);
         // Letterbox
@@ -334,7 +336,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         SoundModel3 soundModel = new SoundModel3(this);
         // Lock
         LockModel lockModel = new LockModel(this);
-
 
         mAllListDataArr = new ArrayList<>();
         mAllListDataArr.add(letterboxModel.getDataHolder());
@@ -408,7 +409,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
        // verifyPermissions(this);
 
 
-        mMediaRouteButton = (androidx.mediarouter.app.MediaRouteButton)findViewById(R.id.media_route_button);
+        mMediaRouteButton = (MediaRouteButton)findViewById(R.id.media_route_button);
         CastButtonFactory.setUpMediaRouteButton(this, mMediaRouteButton);
         mMediaRouteButton.setVisibility(View.INVISIBLE);
     }

@@ -3,9 +3,11 @@ package biz.kindler.rigi.settings;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.view.WindowManager;
 
 import biz.kindler.rigi.R;
+import biz.kindler.rigi.modul.BaseModel;
 
 /**
  * Created by patrick kindler (katermoritz100@gmail.com) on 19.02.19
@@ -17,10 +19,13 @@ public class PublicTransportPreferenceFragment extends BasePreferenceFragment {
     public static final String      API_KEY                 = "transport_api_key";
     public static final String      FROM_LOCATION           = "from_location";
     public static final String      TO_LOCATION             = "to_location";
+    public static final String      TRANSPORT_REQUEST_CNT   = "transport_req_cnt";
+    public static final String      TRANSPORT_REQUEST_SINCE = "transport_req_since";
 
-    private EditTextPreference mApiKeyPref;
-    private EditTextPreference mFromPref;
-    private EditTextPreference mToPref;
+    private EditTextPreference  mApiKeyPref;
+    private EditTextPreference  mFromPref;
+    private EditTextPreference  mToPref;
+    private Preference          mInfoPref;
 
 
     @Override
@@ -45,6 +50,10 @@ public class PublicTransportPreferenceFragment extends BasePreferenceFragment {
         mToPref.setOnPreferenceClickListener(this);
         mToPref.setOnPreferenceChangeListener(this);
         mToPref.setSummary( getToSummary());
+
+        mInfoPref = findPreference( TRANSPORT_REQUEST_CNT);
+        mInfoPref.setSummary( "Anfragen: " + PreferenceManager.getDefaultSharedPreferences(getContext()).getString(TRANSPORT_REQUEST_CNT, "unknown") + " (seit " +
+                PreferenceManager.getDefaultSharedPreferences(getContext()).getString(TRANSPORT_REQUEST_SINCE, "unknown") + ")");
     }
 
     private String getApiKeySummary() {

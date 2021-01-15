@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Trias version="1.1" xmlns="http://www.vdv.de/trias" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <ServiceRequest>
+        <RequestPayload>
+            <TripRequest>
+                <Origin>
+                    <LocationRef>
+                        <StopPointRef>%1$s</StopPointRef>
+                    </LocationRef>
+                </Origin>
+                <Destination>
+                    <LocationRef>
+                        <StopPointRef>%2$s</StopPointRef>
+                    </LocationRef>
+                </Destination>
+                <Params>
+                    <NumberOfResults>5</NumberOfResults>
+                    <StopEventType>departure</StopEventType>
+                    <IncludePreviousCalls>false</IncludePreviousCalls>
+                    <IncludeOnwardCalls>false</IncludeOnwardCalls>
+                    <IncludeRealtimeData>false</IncludeRealtimeData>
+                    <IncludeTrackSections>false</IncludeTrackSections>
+                    <IncludeLegProjection>false</IncludeLegProjection>
+                    <IncludeIntermediateStops>false</IncludeIntermediateStops>
+                </Params>
+            </TripRequest>
+        </RequestPayload>
+    </ServiceRequest>
+</Trias>

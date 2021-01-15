@@ -37,7 +37,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:text="Title"
-                android:textSize="22sp" />
+                android:singleLine="true"
+                android:textSize="20sp" />
 
         </TableRow>
 

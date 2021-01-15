@@ -23,7 +23,7 @@
         android:maxLines="1"
         android:selectAllOnFocus="true"
         android:singleLine="true"
-        android:defaultValue="Buchrain,Dorf"
+        android:defaultValue=""
         android:title="From location" />
 
     <EditTextPreference
@@ -32,8 +32,13 @@
         android:maxLines="1"
         android:selectAllOnFocus="true"
         android:singleLine="true"
-        android:defaultValue="Luzern,Bahnhof"
+        android:defaultValue=""
         android:title="To location" />
+
+    <Preference
+        android:title="Info"
+        android:key="transport_req_cnt"
+        android:summary="-"/>
 
   </PreferenceCategory>
 

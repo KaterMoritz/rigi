@@ -14,6 +14,6 @@ import biz.kindler.rigi.modul.ThreeLinesDataHolder;
 public class VBLDataHolder extends ThreeLinesDataHolder {
 
     public VBLDataHolder() {
-        super( "Fahrplan " + VBLModel2.getFromTitle(RigiApplication.getAppContext()) + " - " + VBLModel2.getToTitle(RigiApplication.getAppContext()), new String[] {"-", "", ""}, new String[] {"-", "", ""}, new String[] {"-", "", ""}, MainActivity.VBL, R.drawable.vbl);
+        super( "Fahrplan...", new String[] {"-", "", ""}, new String[] {"-", "", ""}, new String[] {"-", "", ""}, MainActivity.VBL, R.drawable.vbl);
     }
 }
