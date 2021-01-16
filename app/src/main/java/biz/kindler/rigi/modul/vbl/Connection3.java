@@ -64,7 +64,7 @@ class Connection3 implements Serializable {
                 JSONObject serviceDepartureObj = legBoardObj.getJSONObject("trias:ServiceDeparture");
                 String timetabledTime = serviceDepartureObj.optString("trias:TimetabledTime");
                 String estimatedTime = serviceDepartureObj.optString("trias:EstimatedTime");
-                departureDelayed = !estimatedTime.equals(timetabledTime);
+                departureDelayed = estimatedTime.length() > 0 && timetabledTime.length() > 0 && !estimatedTime.equals(timetabledTime);
                 if( departureDelayed) {
                     delayMinutes = calculateDepartureDelay(timetabledTime, estimatedTime);
                 }
@@ -82,7 +82,8 @@ class Connection3 implements Serializable {
     private int calculateDepartureDelay(String timetabledTime, String estimatedTime) throws Exception {
         OffsetDateTime timetabledODT = OffsetDateTime.parse( timetabledTime);
         OffsetDateTime estimatedODT = OffsetDateTime.parse( estimatedTime);
-        return estimatedODT.getMinute() - timetabledODT.getMinute();
+        int value = estimatedODT.getMinute() - timetabledODT.getMinute();
+        return value < 0 ? 60 + value : value;
     }
 
     public String getDelay() {
