@@ -52,6 +52,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.cast.framework.CastButtonFactory;
+import com.google.firebase.FirebaseApp;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -165,6 +166,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
 
+        FirebaseApp.initializeApp(this);
+
         Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this));
         if (getIntent().getBooleanExtra("crash", false))
             Toast.makeText(this, "App restarted after crash", Toast.LENGTH_SHORT).show();
@@ -172,6 +175,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         verifyPermissions(this);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+
+       // Settings.System.putInt(getContentResolver(), Settings.System.SOUND_EFFECTS_ENABLED, 1);
+       // this.getCurrentFocus().setSoundEffectsEnabled(true);
 
         // test commit
 
@@ -195,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // COSU
        // mAdminComponentName = DeviceAdminReceiver().getComponentName(this);
        // mAdminComponentName = new DeviceAdminReceiver().getWho(this);
-        mAdminComponentName = new ComponentName(this, DeviceAdminReceiver.class);
+        mAdminComponentName = new ComponentName(this, DeviceOwnerReceiver.class);//DeviceAdminReceiver.class);
         mDevicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
         mPackageManager = getPackageManager();
 
@@ -208,6 +214,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 try {
                     // Settings.Global.putInt(getContentResolver(),Settings.Global.STAY_ON_WHILE_PLUGGED_IN, 0);
 
+                    mDevicePolicyManager.setLockTaskPackages(mAdminComponentName, new String[]{getPackageName()});
+
                     enableStayOnWhilePluggedIn(true);
                     Log.d(TAG, "enableStayOnWhilePluggedIn OK");
                 } catch( Exception ex) {
@@ -219,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             } else {
                 Log.e(TAG, "App is NOT Device Owner");
                 sendSystemBroadcast( SystemModel.ACTION_EXCEPTION, getClass().getName(), "App is NOT Device Owner", "");
-                Toast.makeText(getApplicationContext(), "Not Device Owner", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "NOT Device Owner", Toast.LENGTH_LONG).show();
             }
         } catch( Exception ex) {
             Log.e(TAG, "setDefaultCosuPolicies exc:" + ex.getMessage());
@@ -566,13 +574,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CalendarSetupActivity.RESULT_SUCCESFULL_SETUP && resultCode == Activity.RESULT_OK) {
             Intent bc = new Intent();
-            bc.setAction( ACTION_ACTIVITY_RESULT + CALENDAR);
+            bc.setAction(ACTION_ACTIVITY_RESULT + CALENDAR);
             getContext().sendBroadcast(bc);
-        }
-
-        else if (requestCode == 199) {
+        } else if (requestCode == 199) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
             boolean stoplocktask = prefs.getBoolean("stop_lock_task_switch", false);
 
@@ -580,10 +587,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (stoplocktask)
                     stopLockTask();
             }
-        }
-
-        else if( requestCode == SoundModel.DETAIL_ACTIVITY_RESULT_CODE  && resultCode == Activity.RESULT_OK) {
-            data.setAction( ACTION_ACTIVITY_RESULT + SOUND);  // send Intent again to SoundModel
+        } else if (requestCode == SoundModel.DETAIL_ACTIVITY_RESULT_CODE && resultCode == Activity.RESULT_OK) {
+            data.setAction(ACTION_ACTIVITY_RESULT + SOUND);  // send Intent again to SoundModel
             getContext().sendBroadcast(data);
         }
 
@@ -730,6 +735,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // COSU
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    // https://developer.android.com/reference/kotlin/android/app/admin/DevicePolicyManager
     @TargetApi(Build.VERSION_CODES.M)
     private void setDefaultCosuPolicies(boolean active) throws Exception {
         // set user restrictions
@@ -737,7 +743,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //setUserRestriction(UserManager.DISALLOW_FACTORY_RESET, active);
         //setUserRestriction(UserManager.DISALLOW_ADD_USER, active);
       //  setUserRestriction(UserManager.DISALLOW_MOUNT_PHYSICAL_MEDIA, active);
-     //   setUserRestriction(UserManager.DISALLOW_ADJUST_VOLUME, active);
+       // setUserRestriction(UserManager.DISALLOW_ADJUST_VOLUME, active);
 
         // disable keyguard and status bar
         mDevicePolicyManager.setKeyguardDisabled(mAdminComponentName, active);
@@ -856,7 +862,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         private void handleLockAction(Bundle extras) {
-            System.out.println ( "handleLockAction: " + extras.toString());
+            if( extras == null)
+                return;
+
+            Log.d(TAG, "handleLockAction: " + extras.toString());
 
             if( extras.containsKey("bridgeConnected")) {
                 mLockAndGoImageView.setVisibility( extras.getBoolean( "bridgeConnected", false) ? View.VISIBLE : View.INVISIBLE);

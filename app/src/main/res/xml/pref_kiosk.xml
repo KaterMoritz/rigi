@@ -10,24 +10,18 @@
         android:textColor="@android:color/white">
 
     <Preference
-        android:title="set device owner"
-        android:key="cmdDeviceOwner"
-        android:summary="Rigi App Lock Task"/>
+        android:title="Info"
+        android:key="kioskInfo"
+        android:summary="collected information"/>
 
     <Preference
-        android:title="clear device owner"
-        android:key="clearDeviceOwner"
-        android:summary="Rigi App Lock Task"/>
-
-    <SwitchPreference
-        android:defaultValue="false"
-        android:key="stop_lock_task_switch"
-        android:summary="Stop Lock Task"
-        android:title="COSU Device" />
+        android:title="Recommendation"
+        android:key="kioskRecommendation"
+        android:summary="recommendation and take action"/>
 
     <Preference
-        android:title="Aktive Benutzer"
-        android:key="activeUsers"
+        android:title="Touch Sound Einstellungen"
+        android:key="soundSettings"
         android:summary=""/>
 
     <Preference

@@ -123,7 +123,7 @@ public class LockModel extends BroadcastReceiver {
     }
 
     private void handleTimeTick() {
-        if(mTickCnt == 0) {
+        if(mTickCnt == 0 && getBridgeToken() != null && getBridgeToken().length() > 0) {
             requestInfoFromBridge();
         } else if( mTickCnt >= 15 || ! mBridgeConnected) {
             mTickCnt = -1;
@@ -148,6 +148,10 @@ public class LockModel extends BroadcastReceiver {
     }
 
     private void requestLockStateWithDelay(int delayMs) {
+        if( getBridgeToken() == null || getBridgeToken().length() == 0) {
+            return;
+        }
+
         mLockStateCnt++;
         if( mLockStateCnt > 400) {
             System.out.println( "requestLockState more than 400 times without a moving off event: -> set mSomeoneMoving = false ");

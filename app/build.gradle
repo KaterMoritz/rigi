@@ -35,7 +35,7 @@ android {
       //  applicationId "biz.kindler.rigi.officebuild"
         minSdkVersion 27
         versionCode 1
-        versionName "3.0.1"
+        versionName "3.1.0"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
         setProperty("archivesBaseName", "rigi")

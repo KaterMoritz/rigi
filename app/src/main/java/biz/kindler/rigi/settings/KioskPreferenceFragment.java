@@ -1,30 +1,51 @@
 package biz.kindler.rigi.settings;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.app.admin.DeviceAdminReceiver;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.UserManager;
 import android.preference.Preference;
-
+import android.provider.Settings;
 import biz.kindler.rigi.DeviceOwnerReceiver;
 import biz.kindler.rigi.R;
 
 /**
  * Created by patrick kindler (katermoritz100@gmail.com) on 06.06.17.
+ * redesign 27.01.2021
  */
 
 public class KioskPreferenceFragment extends BasePreferenceFragment {
 
     private final static String 	        TAG = KioskPreferenceFragment.class.getSimpleName();
 
-    private static String   SET_DEVICE_OWNER        = "cmdDeviceOwner";
-    private static String   CLEAR_DEVICE_OWNER      = "clearDeviceOwner";
-    private static String   ACTIVE_USERS            = "activeUsers";
+    private static String   KIOSK_INFO              = "kioskInfo";
+    private static String   KIOSK_RECOMMENDATION    = "kioskRecommendation";
+    private static String   GOTO_SOUND_SETTINGS     = "soundSettings";
     private static String   START_LOCKTASK          = "startLockTask";
     private static String   STOP_LOCKTASK           = "stopLockTask";
     private static String   EXIT_APP                = "exitApp";
+    private static String   RECOMMENDATION_FOR_DEVICE_OWNER_OK             = "no further action required";
+    private static String   RECOMMENDATION_FOR_BECOME_DEVICE_ADMIN         = "click here to become \"device admin\"";
+    private static String   RECOMMENDATION_FOR_DEVICE_ADMIN_OK             = "- become developer: tap 7 times on build number\n- activate debug mode in developer section\n- connect device via USB and start the Rigi App\n- type command in console: adb shell dpm set-device-owner biz.kindler.rigi/.DeviceOwnerReceiver\n- if dpm reported success, restart the device";
+    private static String   RECOMMENDATION_FOR_FACTORY_RESET               = "Factory reset required and set up device without any account (skip account configuration)";
+
+    private static int      RESULT_BECOME_DEVICE_ADMIN      = 6;
+
+    private Preference      mKioskInfoPreference;
+    private Preference      mKioskRecommendation;
+    private Preference      mStartLockTaskPreference;
+    private Preference      mStopLockTaskPreference;
+
+    private DevicePolicyManager mDpm;
+    private ComponentName mAdminComponent;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -32,38 +53,87 @@ public class KioskPreferenceFragment extends BasePreferenceFragment {
         addPreferencesFromResource(R.xml.pref_kiosk);
         setHasOptionsMenu(true);
 
-        // set Device owner
-        Preference cmdDeviceOwnerPreference = findPreference(SET_DEVICE_OWNER);
-        cmdDeviceOwnerPreference.setOnPreferenceClickListener( this);
-        // clear  Device owner
-        Preference clearDeviceOwnerPreference = findPreference(CLEAR_DEVICE_OWNER);
-        clearDeviceOwnerPreference.setOnPreferenceClickListener( this);
-        // Aktive Users
-        Preference activeUsersPreference = findPreference(ACTIVE_USERS);
-        activeUsersPreference.setOnPreferenceClickListener( this);
-        activeUsersPreference.setSummary("klick to check");
+        mDpm = (DevicePolicyManager) getContext().getSystemService(Context.DEVICE_POLICY_SERVICE);
+        mAdminComponent = new ComponentName(getContext(), DeviceOwnerReceiver.class);
+
+        mKioskInfoPreference = findPreference(KIOSK_INFO);
+
+        mKioskRecommendation = findPreference(KIOSK_RECOMMENDATION);
+        mKioskRecommendation.setOnPreferenceClickListener( this);
+
+        Preference soundSettingsPreference = findPreference(GOTO_SOUND_SETTINGS);
+        soundSettingsPreference.setOnPreferenceClickListener( this);
+        soundSettingsPreference.setSummary("goto System Settings");
+
         // start locktask
-        Preference startLockTaskPreference = findPreference(START_LOCKTASK);
-        startLockTaskPreference.setOnPreferenceClickListener(this);
+        mStartLockTaskPreference = findPreference(START_LOCKTASK);
+        mStartLockTaskPreference.setOnPreferenceClickListener(this);
         // stop locktask
-        Preference stopLockTaskPreference = findPreference(STOP_LOCKTASK);
-        stopLockTaskPreference.setOnPreferenceClickListener(this);
+        mStopLockTaskPreference = findPreference(STOP_LOCKTASK);
+        mStopLockTaskPreference.setOnPreferenceClickListener(this);
+
         // exit app
         Preference exitAppPreference = findPreference(EXIT_APP);
         exitAppPreference.setOnPreferenceClickListener(this);
 
-        boolean lockTaskPermitted = ((DevicePolicyManager) getActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isLockTaskPermitted("biz.kindler.rigi");
-        startLockTaskPreference.setSummary("LockTaskPermitted: " + lockTaskPermitted);
+        collectKioskInfo();
+        giveKioskRecommendation();
+    }
+
+    private void collectKioskInfo() {
+        mKioskInfoPreference.setSummary("collected information...");
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                StringBuffer buff = new StringBuffer();
+                boolean isDeviceOwner = isDeviceOwner();
+                buff.append("is app device owner: " + isDeviceOwner + "\n");
+                buff.append("is device admin: " + isDeviceAdmin() + "\n");
+                buff.append("users: " + getUserCnt() + ", accounts: " + getAccountsCnt() + "\n");
+                buff.append("lock task permitted: " + mDpm.isLockTaskPermitted( getComponentName(getContext()).getPackageName()) + "\n");
+                if( ! isDeviceOwner) {
+                    buff.append("option to take \"app device owner\": " + isDeviceAdmin());
+                }
+                mKioskInfoPreference.setSummary(buff.toString());
+
+                if( ! isDeviceOwner) {
+                    mStartLockTaskPreference.setTitle("");
+                    mStopLockTaskPreference.setTitle("");
+                }
+            }
+        }, 1000);
+    }
+
+    public static ComponentName getComponentName(Context context) {
+        return new ComponentName(context.getApplicationContext(), DeviceAdminReceiver.class);
+    }
+
+    private void giveKioskRecommendation() {
+        mKioskRecommendation.setSummary("Empfehlung:");
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if( isDeviceOwner()) {
+                    mKioskRecommendation.setSummary(RECOMMENDATION_FOR_DEVICE_OWNER_OK);
+                    mStartLockTaskPreference.setEnabled(true);
+                    mStopLockTaskPreference.setEnabled(true);
+                } else if( ! isDeviceAdmin() && getAccountsCnt() == 0) {
+                    mKioskRecommendation.setSummary(RECOMMENDATION_FOR_BECOME_DEVICE_ADMIN);
+                } else if( isDeviceAdmin()) {
+                    mKioskRecommendation.setSummary(RECOMMENDATION_FOR_DEVICE_ADMIN_OK);
+                } else if( getAccountsCnt() > 0) {
+                    mKioskRecommendation.setSummary(RECOMMENDATION_FOR_FACTORY_RESET);
+                }
+            }
+        }, 2000);
     }
 
     @Override
     public boolean onPreferenceClick(Preference preference) {
-        if( preference.getKey().equals(SET_DEVICE_OWNER))
-            setDeviceOwner();
-        else if( preference.getKey().equals(CLEAR_DEVICE_OWNER))
-            clearDeviceOwner();
-        else if( preference.getKey().equals(ACTIVE_USERS))
-            checkActiveUsers();
+        if( preference.getKey().equals(KIOSK_RECOMMENDATION) &&! isDeviceAdmin() && getAccountsCnt() == 0)
+            becomeDeviceAdmin();
+        else if( preference.getKey().equals(GOTO_SOUND_SETTINGS))
+            gotoSoundSettings();
         else if( preference.getKey().equals(START_LOCKTASK))
             startLockTask();
         else if( preference.getKey().equals(STOP_LOCKTASK))
@@ -74,65 +144,40 @@ public class KioskPreferenceFragment extends BasePreferenceFragment {
         return false;
     }
 
-    private void setDeviceOwner() {
-        try {
-            //Runtime.getRuntime().exec("dpm set-device-owner biz.kindler.rigi/.DeviceOwnerReceiver");
-            DevicePolicyManager dpManager = (DevicePolicyManager) getActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
-            ComponentName deviceAdmin = new ComponentName(getActivity(), DeviceOwnerReceiver.class);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                dpManager.setLockTaskPackages(deviceAdmin, new String[]{"biz.kindler.rigi"});
-            }
+    private void becomeDeviceAdmin() {
+        final Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+        intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, mAdminComponent);
+        intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "become device admin for Rigi App");
+        startActivityForResult(intent, RESULT_BECOME_DEVICE_ADMIN);
+    }
 
-        } catch (Exception e) {
-            Preference pref = findPreference(SET_DEVICE_OWNER);
-            pref.setSummary(e.getMessage());
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if( requestCode == RESULT_BECOME_DEVICE_ADMIN) {
+            collectKioskInfo();
+            giveKioskRecommendation();
         }
-        // return true;
     }
 
-    private void clearDeviceOwner() {
-        try {
-            DevicePolicyManager dpManager = (DevicePolicyManager) getActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                dpManager.clearDeviceOwnerApp("biz.kindler.rigi");
-            }
-        } catch (Exception e) {
-            Preference pref = findPreference(CLEAR_DEVICE_OWNER);
-            pref.setSummary(e.getMessage());
-        }
-        //return true;
+    private int getAccountsCnt() {
+        final Account[] accounts = AccountManager.get(getContext()).getAccounts();
+        return accounts.length;
     }
 
-    public boolean checkIfDeviceOwner() {
-        DevicePolicyManager dpManager = (DevicePolicyManager) getActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
-        return (dpManager.isDeviceOwnerApp(getActivity().getApplicationContext().getPackageName()));
-
-        // if (dpManager.isDeviceOwnerApp(getActivity().getApplicationContext().getPackageName())) {
-        // This app is set up as the device owner. Show the main features.
-        //     cmdDeviceOwnerPreference.setSummary("OK - Rigi app is the device owner");
-        //} else {
-        // This app is not set up as the device owner. Show instructions.
-        //     cmdDeviceOwnerPreference.setSummary("Rigi app is NOT the device owner (click to set-device-owner) \n [aktive users: " + userCnt + "]");
-        // showFragment(InstructionFragment.newInstance());
-        // }
+    public boolean isDeviceOwner() {
+        return (mDpm.isDeviceOwnerApp(getActivity().getApplicationContext().getPackageName()));
     }
 
-    public void showPreferenceIfDeviceOwner(boolean isDeviceOwner) {
-        Preference cmdDeviceOwnerPreference = findPreference("cmdDeviceOwner");
-        if (isDeviceOwner)
-            cmdDeviceOwnerPreference.setSummary("OK - Rigi app is the device owner");
-        else
-            cmdDeviceOwnerPreference.setSummary("Rigi app is NOT the device owner (click to set-device-owner)");
+    private boolean isDeviceAdmin() {
+        return mDpm.isAdminActive(mAdminComponent); // find out if we are a device administrator
     }
 
-    private void checkActiveUsers() {
-        Preference pref = findPreference(ACTIVE_USERS);
-        pref.setSummary(String.valueOf(getUserCnt()));
+    private void gotoSoundSettings() {
+        getActivity().startActivity(new Intent(Settings.ACTION_SOUND_SETTINGS));
     }
 
     private int getUserCnt() {
         UserManager userManager = (UserManager) getActivity().getSystemService(Context.USER_SERVICE);
-        //int userCnt = userManager.getUserCount();
         int userCnt = 0;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             userCnt = userManager.getUserProfiles().size();
@@ -156,4 +201,6 @@ public class KioskPreferenceFragment extends BasePreferenceFragment {
         getActivity().finishAffinity();
         System.exit(0);
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }
